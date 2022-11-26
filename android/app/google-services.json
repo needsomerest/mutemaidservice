@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "416863663114",
+    "project_id": "mutemaidservice-5c04b",
+    "storage_bucket": "mutemaidservice-5c04b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416863663114:android:becd313d907173bcf6dbf3",
+        "android_client_info": {
+          "package_name": "com.example.mutemaidservice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416863663114-1qlgubb5a2ql1ckvm64qhrdkn3ihfn60.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRCWJG-f5eQwGmPNXZJkW0GlJ7CttreNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416863663114-1qlgubb5a2ql1ckvm64qhrdkn3ihfn60.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416863663114-0kvh0dkpm4as64rk05vsccib5kei44pv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mutemaidservice"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
