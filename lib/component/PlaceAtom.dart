@@ -2,23 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:mutemaidservice/screen/PlaceScreen/AddPlaceScreen.dart';
+import 'package:mutemaidservice/screen/user/PlaceScreen/AddPlaceScreen.dart';
+
+import '../screen/user/PlaceScreen/Editplace.dart';
 
 class PlaceAtom extends StatelessWidget {
   // const PlaceAtom({super.key});
   String name;
   String img;
-  PlaceAtom(this.name, this.img);
+  String addressID;
+  bool select;
+  PlaceAtom(this.name, this.img, this.select, this.addressID);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 120,
       height: 120,
-      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: HexColor('#FFFFFF'),
-          border: Border.all(width: 2.0, color: HexColor('#5D5FEF')),
+          border: select == true
+              ? Border.all(width: 2.0, color: HexColor('#5D5FEF'))
+              : Border.all(width: 2.0, color: HexColor('#FFFFFF')),
           // border: Colors.blueAccent,
           borderRadius: BorderRadius.all(Radius.circular(20))),
       child: Column(
@@ -52,16 +58,19 @@ class PlaceAtom extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Addplace(true)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Editplace(addressID)));
                 },
               )
             ],
           ),
-          Image.asset(
+          Image.network(
             img,
-            height: 110,
-            width: 100,
+            height: 70,
+            width: 90,
+            fit: BoxFit.cover,
           )
         ],
       ),

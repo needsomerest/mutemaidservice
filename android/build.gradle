@@ -1,16 +1,19 @@
 buildscript {
-    ext.kotlin_version = '1.6.10'
+    ext.kotlin_version = '1.8.20'
     repositories {
         google()
         mavenCentral()
+        // jcenter()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.2'
+        
         // START: FlutterFire Configuration
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         // END: FlutterFire Configuration
+        // classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -33,3 +36,5 @@ subprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+//SHA1: 5B:71:DE:EE:C2:B5:25:95:38:3E:E0:90:A1:13:79:AB:91:6B:3A:F9
+//SHA-256: 82:D6:1F:23:B9:73:0B:E2:3F:CD:02:44:10:68:9F:60:EE:FB:15:92:38:BC:0A:32:74:58:83:96:8A:46:B4:C2

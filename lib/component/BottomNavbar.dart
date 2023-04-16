@@ -3,10 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:hexcolor/hexcolor.dart';
 // import 'package:mcs_app/screen/SettingsScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:mutemaidservice/screen/BookingScreen/MyBooking.dart';
-import 'package:mutemaidservice/screen/ChatScreen/ChatScreen.dart';
-import 'package:mutemaidservice/screen/HelpScreen/HelpScreen.dart';
 import 'package:mutemaidservice/screen/HomeScreen.dart';
+import 'package:mutemaidservice/screen/user/ChatScreen/ChatHistory.dart';
+
+import '../screen/user/BookingScreen/MyBooking.dart';
+import '../screen/user/HelpScreen/HelpScreen.dart';
 
 //void main() => runApp(const MyApp());
 
@@ -47,8 +48,8 @@ class _MyStatefulWidgetState extends State<BottomNavbar> {
 
   final screens = [
     HomeScreen(),
-    MyBooking([1, 5]),
-    ChatScreen(),
+    MyBooking(),
+    ChatHistoryScreen(),
     HelpScreen()
   ];
   // final screens = [HomeScreen(), booking(false), ChatScreen(), HelpScreen()];
@@ -71,15 +72,15 @@ class _MyStatefulWidgetState extends State<BottomNavbar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article_outlined),
-            label: 'การจอง',
+            label: 'การจองของฉัน',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'แชท',
+            label: 'การสนทนา',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.video_camera_front),
-            label: 'ล่าม',
+            label: 'ภาษามือ',
           ),
         ],
         currentIndex: _selectedIndex,

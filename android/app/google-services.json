@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "416863663114-4f832ndo0eov6v47jvmu3j42koets6oe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mutemaidservice",
+            "certificate_hash": "5b71deeec2b52595383ee090a11379ab916b3af9"
+          }
+        },
+        {
           "client_id": "416863663114-1qlgubb5a2ql1ckvm64qhrdkn3ihfn60.apps.googleusercontent.com",
           "client_type": 3
         }

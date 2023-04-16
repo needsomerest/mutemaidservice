@@ -19,7 +19,7 @@ class _ChatAtomState extends State<ChatAtom> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 20, left: 30),
+        padding: EdgeInsets.only(top: 10, left: 30, bottom: 10),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(width: 1.0, color: HexColor('#DDDDDD')),
@@ -27,31 +27,38 @@ class _ChatAtomState extends State<ChatAtom> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              margin: EdgeInsets.only(bottom: 15, right: 20),
               height: 58,
               width: 58,
               child: CircleAvatar(
-                backgroundImage: AssetImage(
+                backgroundImage: NetworkImage(
                   widget.img,
                 ),
                 radius: 220,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  widget.name,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.lastchat,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-              ],
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Column(
+                children: [
+                  Text(
+                    widget.name,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  Text(
+                    widget.lastchat,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
+                  ),
+                ],
+              ),
             ),
           ],
         ));

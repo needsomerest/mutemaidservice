@@ -1,11 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:geocode/geocode.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
 
 class FormInput extends StatelessWidget {
   String title;
   String hint;
+  final AddressData addressData;
   // const LocationForm({super.key});
-  FormInput(this.title, this.hint);
+  FormInput(
+      {Key? key,
+      required this.title,
+      required this.hint,
+      required this.addressData})
+      : super(key: key);
+
+  void CheckFormInput(String title, final value) {
+    if (title == "ชื่อ :") {
+      addressData.Address = value;
+    }
+    // if (title == "ตำแหน่งที่ตั้ง :") {
+    //   addressData.point = value;
+    // }
+    if (title == "รายละเอียดที่อยู่ :") {
+      addressData.AddressDetail = value;
+    }
+    if (title == "จังหวัด :") {
+      addressData.Province = value;
+    }
+    if (title == "เขต :") {
+      addressData.District = value;
+    }
+    if (title == "เบอร์โทรศัพท์ :") {
+      addressData.Phonenumber = value;
+    }
+    if (title == "หมายเหตุ (เพิ่มเติม) :") {
+      addressData.Note = value;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -18,7 +51,8 @@ class FormInput extends StatelessWidget {
         SizedBox(
           width: 396,
           height: 32,
-          child: TextField(
+          child: TextFormField(
+            //enabled: false,
             textAlignVertical: TextAlignVertical.bottom,
             decoration: InputDecoration(
               filled: true,
@@ -40,6 +74,9 @@ class FormInput extends StatelessWidget {
             ),
             style: TextStyle(
                 fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
+            onChanged: (value) {
+              CheckFormInput(title, value);
+            },
           ),
         )
       ],

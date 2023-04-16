@@ -3,12 +3,66 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/PaymentData.dart';
 
 class InfoPrice extends StatelessWidget {
-  const InfoPrice({super.key});
+  String TimeService;
+  String Package;
+  String AddressSize;
+  PaymentData paymentData;
+  InfoPrice(this.AddressSize, this.Package, this.TimeService, this.paymentData);
+
+  int SumPrice() {
+    int Price = 0;
+    if (TimeService == '2 ชม.' || TimeService == '2 ชม. แนะนำ') {
+      Price = Price + 80;
+    } else if (TimeService == '3 ชม.') {
+      Price = Price + 100;
+    } else if (TimeService == '4 ชม.') {
+      Price = Price + 120;
+    } else if (TimeService == '5 ชม.') {
+      Price = Price + 140;
+    } else if (TimeService == '6 ชม.') {
+      Price = Price + 160;
+    } else if (TimeService == '7 ชม.') {
+      Price = Price + 180;
+    } else if (TimeService == '8 ชม.') {
+      Price = Price + 200;
+    } else {
+      Price = Price + 0;
+    }
+
+    if (AddressSize == '40') {
+      Price = Price + 180;
+    } else if (AddressSize == '80') {
+      Price = Price + 220;
+    } else if (AddressSize == '120') {
+      Price = Price + 300;
+    } else {
+      Price = Price + 0;
+    }
+
+    if (Package == 'รายครั้ง') {
+      Price = Price + 220;
+    } else if (Package == 'รายเดือน') {
+      Price = Price + 180;
+    } else if (Package == 'รายสัปดาห์') {
+      Price = Price + 160;
+    } else if (Package == 'รายวัน') {
+      Price = Price + 100;
+    } else {
+      Price = Price + 0;
+    }
+
+    return Price;
+  }
 
   @override
   Widget build(BuildContext context) {
+    int Price = SumPrice();
+    double tax = Price * 7 / 100;
+    double sum = Price + tax;
+    paymentData.PaymentPrice = sum;
     return Container(
       height: 270,
       width: 400,
@@ -32,7 +86,7 @@ class InfoPrice extends StatelessWidget {
                   color: HexColor('#000000')),
             ),
             Text(
-              '500.00 บาท',
+              Price.toStringAsFixed(2) + ' บาท',
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -41,14 +95,14 @@ class InfoPrice extends StatelessWidget {
           ]),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(
-              'ภาษีมูลค่าเพิ่ม 7%',
+              AddressSize,
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: HexColor('#000000')),
             ),
             Text(
-              '35.00 บาท',
+              tax.toStringAsFixed(2) + ' บาท',
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -64,7 +118,7 @@ class InfoPrice extends StatelessWidget {
                   color: HexColor('#000000')),
             ),
             Text(
-              '535.00 บาท',
+              sum.toStringAsFixed(2) + ' บาท',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

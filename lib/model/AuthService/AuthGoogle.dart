@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mutemaidservice/screen/HomeScreen.dart';
-import 'package:mutemaidservice/screen/UserScreen/IndexScreen.dart';
+import 'package:mutemaidservice/screen/user/UserScreen/IndexScreen.dart';
+
+import '../../screen/HomeScreen.dart';
 
 class AuthGoogle {
   //1. jandleAuthState()

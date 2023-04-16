@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mutemaidservice/model/auth.dart';
-import 'package:mutemaidservice/screen/HomeScreen.dart';
-import 'package:mutemaidservice/screen/UserScreen/IndexScreen.dart';
+import 'package:mutemaidservice/screen/admin/SigninScreen/VerifyEmailMaidScreen.dart';
+import 'package:mutemaidservice/screen/user/UserScreen/IndexScreen.dart';
+import 'package:mutemaidservice/screen/user/UserScreen/VerifyEmailScreen.dart';
 
 import '../main.dart';
 
@@ -20,9 +21,9 @@ class _WidgetTreeState extends State<WidgetTree> {
       stream: Auth().authStateChange,
       builder: ((context, snapshot) {
         if (snapshot.hasData) {
-          return HomeScreen();
+          return VerifyEmailScreen(); //HomeScreen();
         } else {
-          return IndexScreen();
+          return IndexScreen(); //Payment(); // //MyBooking(booking); //IndexScreen();
         }
       }),
     );

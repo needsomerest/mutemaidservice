@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
 
 class DropdownPackage extends StatefulWidget {
-  const DropdownPackage({Key? key}) : super(key: key);
+  final ReservationData reservationData;
+  /*
+  final Housekeeper housekeeper;*/
+  DropdownPackage({
+    Key? key,
+    required this.reservationData,
+    /*required this.addressData,
+      required this.housekeeper*/
+  }) : super(key: key);
 
   // FormBooking({List<String> items}) : this.items = items ?? [];
   // final List<String> items;
@@ -24,6 +35,10 @@ class _MyHomePageState extends State<DropdownPackage> {
   ];
   @override
   Widget build(BuildContext context) {
+    dropdownvalue = widget.reservationData.Package == ""
+        ? 'ครั้งเดียว'
+        : widget.reservationData.Package;
+
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text("Geeksforgeeks"),
@@ -70,6 +85,7 @@ class _MyHomePageState extends State<DropdownPackage> {
                     setState(() {
                       dropdownvalue = newValue!;
                     });
+                    widget.reservationData.Package = dropdownvalue.toString();
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),
                   // borderRadius: BorderRadius.circular(10),
