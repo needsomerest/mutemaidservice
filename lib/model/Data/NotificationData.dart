@@ -1,18 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class NotificationData {
-  String NotificationID;
   String UserID;
   String ReservationID;
   String NotificationDetail;
-
-  NotificationData(this.NotificationID, this.UserID, this.ReservationID,
-      this.NotificationDetail);
+  String Header;
+  NotificationData(
+      this.UserID, this.ReservationID, this.NotificationDetail, this.Header);
 
   Map<String, dynamic> CreateNotificationtoJson() => {
-        'NotificationID': NotificationID,
         'UserID': UserID,
+        'Header': Header,
         'ReservationID': ReservationID,
         'NotificationDetail': NotificationDetail,
+        'Seen': false,
+        'Datetime': DateTime.now()
       };
 }

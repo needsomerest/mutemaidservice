@@ -25,6 +25,7 @@ class _HelpScreenState extends State<HelpScreen> {
   bool _ischeck = true;
 
   void searchFromFirebase(String query) async {
+    searchRusult = [];
     final result = await FirebaseFirestore.instance
         .collection('SignLanguageVideo')
         .where('Name', isGreaterThanOrEqualTo: query)

@@ -5,6 +5,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/FavMaidList.dart';
 import 'package:mutemaidservice/component/RateStar.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import '../BookingScreen/BookingScreen.dart';
@@ -53,6 +54,20 @@ class _MyfavoriteScreenState extends State<MyfavoriteScreen> {
   final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
       "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
 
+  final newAddress = AddressData(
+      "AddressID",
+      "Addressimage",
+      "Type",
+      "SizeRoom",
+      "Address",
+      "AddressDetail",
+      "Province",
+      "District",
+      "Phonenumber",
+      "Note",
+      "User",
+      GeoPoint(0, 0));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,12 +99,14 @@ class _MyfavoriteScreenState extends State<MyfavoriteScreen> {
           child: Container(
             height: 800,
             child: FavMaidList(
-                housekeeper: newHousekeeper,
-                booked: false,
-                userID: widget.userID,
-                reservationData: newReservationData,
-                callby: 'menu',
-                Reservation_Day: '-'),
+              addressData: newAddress,
+              housekeeper: newHousekeeper,
+              booked: false,
+              reservationData: newReservationData,
+              callby: 'menu',
+              Reservation_Day: '-',
+              distance: 100,
+            ),
           ),
         ) /*FavMaidList(
         booked: false,

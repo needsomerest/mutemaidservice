@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
@@ -68,10 +69,26 @@ class _SigninScreenState extends State<SigninScreen> {
     }
   }
 
+  Future<bool> CheckEmailUser(String email) async {
+    List<Map<String, dynamic>> data = [];
+
+    QuerySnapshot<Map<String, dynamic>> UserSnapshot =
+        await FirebaseFirestore.instance.collection('User').get();
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> UserDoc
+        in UserSnapshot.docs) {
+      if (UserDoc['Email'].toString() == email.toString()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool value = false;
   bool _isObscure = true;
   bool RemembermeCheck = false;
-
+  bool _checkEmail = false;
   get alignment => null;
 
   @override
@@ -195,26 +212,33 @@ class _SigninScreenState extends State<SigninScreen> {
               Container(
                 child: ElevatedButton(
                   onPressed: () async {
-                    try {
-                      final userCredential =
-                          await _firebaseAuth.signInWithEmailAndPassword(
-                              email: _controllerEmail.text.trim(),
-                              password: _controllerPassword.text.trim());
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackLoginEmailFail);
-                      } else if (e.code == 'wrong-password') {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackLoginPasswordFail);
-                      } else if (e.code == 'unknown') {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackLoginUnknowFail);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content:
-                                Text('Failed with error code: ${e.code}')));
+                    _checkEmail =
+                        await CheckEmailUser(_controllerEmail.text.trim());
+                    if (_checkEmail == true) {
+                      try {
+                        final userCredential =
+                            await _firebaseAuth.signInWithEmailAndPassword(
+                                email: _controllerEmail.text.trim(),
+                                password: _controllerPassword.text.trim());
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackLoginEmailFail);
+                        } else if (e.code == 'wrong-password') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackLoginPasswordFail);
+                        } else if (e.code == 'unknown') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackLoginUnknowFail);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content:
+                                  Text('Failed with error code: ${e.code}')));
+                        }
                       }
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(snackLoginEmailFail);
                     }
 
                     //signInWithEmailAndPassword();
@@ -237,7 +261,9 @@ class _SigninScreenState extends State<SigninScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(
+                height: 30,
+              ),
               GestureDetector(
                 child: Text(
                   'ลืมรหัสผ่าน?',
@@ -249,41 +275,44 @@ class _SigninScreenState extends State<SigninScreen> {
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => ForgotPasswordScreen())),
               ),
-              const SizedBox(height: 30),
-              DividerAccount("หรือดำเนินการต่อด้วย", 10),
-              const SizedBox(height: 10),
-              Container(
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.center,
-                  children: [
-                    OutlinedButton(
-                      // facebook button
-                      onPressed: () {
-                        AuthGoogle().signInWithGoogle();
-                      },
-                      child: FaIcon(FontAwesomeIcons.facebook),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: HexColor("#5D5FEF"),
-                        minimumSize: Size(50, 50),
-                      ),
-                    ),
-                    OutlinedButton(
-                      //google button
-                      onPressed: () {
-                        AuthGoogle().signInWithGoogle();
-                      },
-                      child: FaIcon(FontAwesomeIcons.google),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: HexColor("#5D5FEF"),
-                        minimumSize: Size(50, 50),
-                      ),
-                    ),
-                  ],
-                ),
+              SizedBox(
+                height: 60,
               ),
+              // DividerAccount("หรือดำเนินการต่อด้วย", 10),
+              // const SizedBox(height: 10),
+              // Container(
+              //   child: ButtonBar(
+              //     alignment: MainAxisAlignment.center,
+              //     children: [
+              //       OutlinedButton(
+              //         // facebook button
+              //         onPressed: () {
+              //           AuthGoogle().signInWithGoogle();
+              //         },
+              //         child: FaIcon(FontAwesomeIcons.facebook),
+              //         style: ElevatedButton.styleFrom(
+              //           primary: Colors.white,
+              //           onPrimary: HexColor("#5D5FEF"),
+              //           minimumSize: Size(50, 50),
+              //         ),
+              //       ),
+              //       OutlinedButton(
+              //         //google button
+              //         onPressed: () {
+              //           AuthGoogle().signInWithGoogle();
+              //         },
+              //         child: FaIcon(FontAwesomeIcons.google),
+              //         style: ElevatedButton.styleFrom(
+              //           primary: Colors.white,
+              //           onPrimary: HexColor("#5D5FEF"),
+              //           minimumSize: Size(50, 50),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 30),
+
               BottomSignin(
                   "ยังไม่มีบัญชี?    ", "#000000", "ลงทะเบียนผู้ใช้", "#5D5FEF")
             ]),
@@ -342,6 +371,7 @@ class BottomSignin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      transformAlignment: Alignment.bottomCenter,
       child: RichText(
         text: TextSpan(children: [
           TextSpan(

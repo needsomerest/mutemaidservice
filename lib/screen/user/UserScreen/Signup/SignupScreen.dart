@@ -272,18 +272,14 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<bool> CheckPhoneNumber(String phonenumber) async {
-    List<Map<String, dynamic>> data = [];
-    int i = 0;
-
     QuerySnapshot<Map<String, dynamic>> UserSnapshot =
         await FirebaseFirestore.instance.collection('User').get();
 
     for (QueryDocumentSnapshot<Map<String, dynamic>> UserDoc
         in UserSnapshot.docs) {
-      if (UserDoc[i]['PhoneNumber'] == phonenumber) {
+      if (UserDoc['PhoneNumber'] == phonenumber) {
         return true;
       }
-      i++;
     }
 
     return false;
@@ -330,28 +326,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-
-                    /*
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundImage: AssetImage('assets/images/profile.png'),
-                      backgroundColor: HexColor("#5D5FEF"),
-                      child: Stack(children: [
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: CircleAvatar(
-                              radius: 22,
-                              backgroundColor: HexColor("#DFDFFC"),
-                              child: IconButton(
-                                icon: Icon(Icons.camera_alt),
-                                onPressed: () {
-                                  UploadImageScreen();
-                                },
-                              )),
-                        ),
-                      ]),
-                    ),*/
-
                     SizedboxHeaderForm("อีเมล : "),
                     TextFormField(
                       controller: _controllersEmail,
@@ -716,7 +690,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           .toList(),
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select gender.';
+                          return 'โปรดระบุเพศของท่าน';
                         }
                       },
                       value: selectedGender,
@@ -809,43 +783,44 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 50),
-              DividerAccount("หรือดำเนินการต่อด้วย", 10),
-              Container(
-                child: Center(
-                  child: ButtonBar(
-                    alignment: MainAxisAlignment.center,
-                    buttonPadding:
-                        EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                    children: [
-                      OutlinedButton(
-                        // facebook button
-                        onPressed: () {
-                          AuthGoogle().signInWithGoogle();
-                        },
-                        child: FaIcon(FontAwesomeIcons.facebook),
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
-                          onPrimary: HexColor("#5D5FEF"),
-                          minimumSize: Size(50, 50),
-                        ),
-                      ),
-                      OutlinedButton(
-                        //google button
-                        onPressed: () {
-                          AuthGoogle().signInWithGoogle();
-                        },
-                        child: FaIcon(FontAwesomeIcons.google),
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
-                          onPrimary: HexColor("#5D5FEF"),
-                          minimumSize: Size(50, 50),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // const SizedBox(height: 50),
+              // DividerAccount("หรือดำเนินการต่อด้วย", 10),
+              // Container(
+              //   child: Center(
+              //     child: ButtonBar(
+              //       alignment: MainAxisAlignment.center,
+              //       buttonPadding:
+              //           EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              //       children: [
+              //         OutlinedButton(
+              //           // facebook button
+              //           onPressed: () {
+              //             AuthGoogle().signInWithGoogle();
+              //           },
+              //           child: FaIcon(FontAwesomeIcons.facebook),
+              //           style: ElevatedButton.styleFrom(
+              //             primary: Colors.white,
+              //             onPrimary: HexColor("#5D5FEF"),
+              //             minimumSize: Size(50, 50),
+              //           ),
+              //         ),
+              //         OutlinedButton(
+              //           //google button
+              //           onPressed: () {
+              //             AuthGoogle().signInWithGoogle();
+              //           },
+              //           child: FaIcon(FontAwesomeIcons.google),
+              //           style: ElevatedButton.styleFrom(
+              //             primary: Colors.white,
+              //             onPrimary: HexColor("#5D5FEF"),
+              //             minimumSize: Size(50, 50),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              Divider(),
               const SizedBox(height: 30),
               BottomSignup(
                   "มีบัญชีอยู่แล้ว?  ", "#000000", "เข้าสู่ระบบ", "#5D5FEF")

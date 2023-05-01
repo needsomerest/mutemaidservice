@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/FavHousekeeperData.dart';
@@ -18,43 +19,28 @@ import 'RateStar.dart';
 class MaidDetail extends StatefulWidget {
   // const MaidDetail({super.key});
   final String UserID;
-  final String HousekeeperID;
-  final String FirstName;
-  final String LastName;
-  final String ProfileImage;
-  final int HearRanking;
-  final int Vaccinated;
-  final int Distance;
-  final String CommunicationSkill;
-
   final String callby;
   final bool fav;
   bool booked;
-  final String PhoneNumber;
 
   final ReservationData reservationData;
   final Housekeeper housekeeper;
   final AddressData addressData;
   final String Reservation_Day;
+  final GeoPoint location_maid;
+  final int distance;
 
   MaidDetail(
       this.UserID,
-      this.HousekeeperID,
-      this.FirstName,
-      this.LastName,
-      this.ProfileImage,
-      this.HearRanking,
-      this.Vaccinated,
-      this.Distance,
-      this.CommunicationSkill,
       this.fav,
       this.booked,
       this.reservationData,
       this.callby,
       this.housekeeper,
-      this.PhoneNumber,
       this.addressData,
-      this.Reservation_Day);
+      this.Reservation_Day,
+      this.distance,
+      this.location_maid);
 
   @override
   State<MaidDetail> createState() => _MaidDetailState();
@@ -155,42 +141,58 @@ class _MaidDetailState extends State<MaidDetail> {
   void initState() {
     super.initState();
 
-    avgReview(widget.HousekeeperID).then((result) {
+    avgReview(widget.housekeeper.HousekeeperID).then((result) {
       setState(() {
         avgreview = result;
       });
     });
 
-    CheckTimeHousekeeper(widget.HousekeeperID, widget.Reservation_Day)
+    CheckTimeHousekeeper(
+            widget.housekeeper.HousekeeperID, widget.Reservation_Day)
         .then((result) {
       setState(() {
         ischecktime = result;
       });
     });
 
-    DateTimeInReservation(widget.HousekeeperID,
-            widget.reservationData.DateTimeService, widget.UserID)
+    DateTimeInReservation(widget.housekeeper.HousekeeperID,
+            widget.reservationData.DateTimeService, user!.uid)
         .then((result) {
       setState(() {
         checkjob = result;
       });
     });
 
-    sumReview(widget.HousekeeperID).then((result) {
+    sumReview(widget.housekeeper.HousekeeperID).then((result) {
       setState(() {
         sumreview = result;
       });
     });
 
-    checkfavhousekeeper(widget.UserID, widget.HousekeeperID).then((result) {
+    checkfavhousekeeper(widget.UserID, widget.housekeeper.HousekeeperID)
+        .then((result) {
       setState(() {
         ischeck = result;
       });
     });
   }
 
+  bool _ischeck = false;
+
   @override
   Widget build(BuildContext context) {
+    double distance = Geolocator.distanceBetween(
+        widget.reservationData.AddressPoint.latitude,
+        widget.reservationData.AddressPoint.longitude,
+        widget.location_maid.latitude,
+        widget.location_maid.longitude);
+
+    if (distance <= widget.distance) {
+      _ischeck = true;
+      // widget.housekeeper.Distance = distance.round();
+    }
+
+    final User? user = Auth().currentUser;
     final newAddress = AddressData(
         "AddressID",
         "Addressimage",
@@ -205,34 +207,16 @@ class _MaidDetailState extends State<MaidDetail> {
         "User",
         GeoPoint(0, 0));
 
-    final newHousekeeper = FavHousekeeper(
-        widget.HousekeeperID,
-        widget.FirstName,
-        widget.LastName,
-        widget.ProfileImage,
-        widget.HearRanking,
-        widget.Vaccinated,
-        widget.Distance,
-        widget.CommunicationSkill,
-        false,
-        false,
-        widget.PhoneNumber);
+    // if (ischecktime) {
+    // checkjob&&
+    // if (widget.callby == 'menu') {
+    //   _ischeck = true;
+    // }
 
-    final detailHousekeeper = Housekeeper(
-        widget.HousekeeperID,
-        widget.FirstName,
-        widget.LastName,
-        widget.ProfileImage,
-        widget.HearRanking,
-        widget.Vaccinated,
-        widget.Distance,
-        widget.CommunicationSkill,
-        widget.PhoneNumber);
-
-    if (checkjob && ischecktime) {
-      return Container(
-        child: Column(
-          children: [
+    return Container(
+      child: Column(
+        children: [
+          if (_ischeck == false) ...[
             SizedBox(
               height: 10,
             ),
@@ -258,7 +242,8 @@ class _MaidDetailState extends State<MaidDetail> {
                           height: 70,
                           width: 70,
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(widget.ProfileImage),
+                            backgroundImage:
+                                NetworkImage(widget.housekeeper.ProfileImage),
                             radius: 220,
                           ),
                         ),
@@ -274,9 +259,9 @@ class _MaidDetailState extends State<MaidDetail> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      widget.FirstName +
+                                      widget.housekeeper.FirstName +
                                           "   " +
-                                          widget.LastName,
+                                          widget.housekeeper.LastName,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -295,11 +280,15 @@ class _MaidDetailState extends State<MaidDetail> {
                                                   : Icons.bookmark_border;
                                               if (icon_fav == Icons.bookmark) {
                                                 createfav(
-                                                    UserID, newHousekeeper);
+                                                    user!.uid,
+                                                    widget.housekeeper
+                                                        .HousekeeperID);
                                               } else if (icon_fav ==
                                                   Icons.bookmark_border) {
-                                                deletefav(UserID,
-                                                    widget.HousekeeperID);
+                                                deletefav(
+                                                    user!.uid,
+                                                    widget.housekeeper
+                                                        .HousekeeperID);
                                               }
                                             });
                                           }),
@@ -316,11 +305,15 @@ class _MaidDetailState extends State<MaidDetail> {
                                                   : Icons.bookmark_border;
                                               if (icon == Icons.bookmark) {
                                                 createfav(
-                                                    UserID, newHousekeeper);
+                                                    user!.uid,
+                                                    widget.housekeeper
+                                                        .HousekeeperID);
                                               } else if (icon ==
                                                   Icons.bookmark_border) {
-                                                deletefav(UserID,
-                                                    widget.HousekeeperID);
+                                                deletefav(
+                                                    user!.uid,
+                                                    widget.housekeeper
+                                                        .HousekeeperID);
                                               }
                                             });
                                           }),
@@ -351,7 +344,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    'ระดับการได้ยิน ${widget.HearRanking} ',
+                                    'ระดับการได้ยิน ${widget.housekeeper.HearRanking} ',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
@@ -367,7 +360,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'รับวัคซีนป้องกันโควิด 19 จำนวน ${widget.Vaccinated} เข็ม',
+                                  'รับวัคซีนป้องกันโควิด 19 จำนวน ${widget.housekeeper.Vaccinated} เข็ม',
                                   style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
@@ -383,7 +376,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    'สื่อสารด้วย : ${widget.CommunicationSkill}',
+                                    'สื่อสารด้วย : ${widget.housekeeper.CommunicationSkill}',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
@@ -400,7 +393,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    '${widget.Distance} กม.',
+                                    '${distance.toStringAsFixed(2)} กม.',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
@@ -436,30 +429,18 @@ class _MaidDetailState extends State<MaidDetail> {
                           ),
                           onPressed: () {
                             widget.reservationData.HousekeeperID =
-                                widget.HousekeeperID;
+                                widget.housekeeper.HousekeeperID;
                             widget.reservationData.HousekeeperFirstName =
-                                widget.FirstName;
+                                widget.housekeeper.FirstName;
                             widget.reservationData.HousekeeperLastName =
-                                widget.LastName;
-
-                            widget.housekeeper.HousekeeperID =
-                                widget.HousekeeperID;
-                            widget.housekeeper.FirstName = widget.FirstName;
-                            widget.housekeeper.LastName = widget.LastName;
-                            widget.housekeeper.CommunicationSkill =
-                                widget.CommunicationSkill;
-                            widget.housekeeper.Distance = widget.Distance;
-                            widget.housekeeper.HearRanking = widget.HearRanking;
-                            widget.housekeeper.ProfileImage =
-                                widget.ProfileImage;
-                            widget.housekeeper.Vaccinated = widget.Vaccinated;
+                                widget.housekeeper.LastName;
 
                             if (widget.callby == 'menu') {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => BookingScreen(
-                                            addressData: newAddress,
+                                            addressData: widget.addressData,
                                             housekeeper: widget.housekeeper,
                                             reservationData:
                                                 widget.reservationData,
@@ -500,23 +481,23 @@ class _MaidDetailState extends State<MaidDetail> {
                         builder: (context) => MaidDetailScreen(
                               callby: widget.callby,
                               addressData: widget.addressData,
-                              PhoneNumber: widget.PhoneNumber,
-                              housekeeper: detailHousekeeper,
+                              housekeeper: widget.housekeeper,
                               reservationData: widget.reservationData,
                               sumreview: sumreview,
                               avgreview: avgreview,
                             )));
               },
             ),
-          ],
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
+          ]
+        ],
+      ),
+    );
+    // } else {
+    //   return SizedBox();
+    // }
   }
 
-  void createfav(String uid, FavHousekeeper housekeeper) async {
+  void createfav(String uid, String housekeeper) async {
     /*  await FirebaseFirestore.instance
                               .collection('User')
                               .doc(uid)
@@ -529,8 +510,8 @@ class _MaidDetailState extends State<MaidDetail> {
         .collection('User')
         .doc(uid)
         .collection('FavHousekeeper')
-        .doc(housekeeper.HousekeeperID)
-        .set(housekeeper.CreateFavHousekeepertoJson());
+        .doc(housekeeper)
+        .set({'HousekeeperID': housekeeper});
   }
 
   void deletefav(String uid, String HousekeeperID) async {

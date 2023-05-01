@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/InfoAtom.dart';
@@ -14,6 +11,11 @@ class InfoBooking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting('th');
+    DateTime dateTime =
+        DateFormat("yyyy-MM-dd").parse(reservationData.DateTimeService);
+
+    reservationData.DateTimeService = DateFormat.yMMMMd('th').format(dateTime);
     return Container(
       height: 500,
       width: 400,

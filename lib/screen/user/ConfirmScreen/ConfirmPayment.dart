@@ -62,7 +62,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
               Container(
                 width: 300.0,
                 margin: EdgeInsets.only(top: 30, bottom: 30),
-                child: stepbar(7),
+                child: stepbar(5),
               ),
               Text(
                 'รายละเอียดการจอง',

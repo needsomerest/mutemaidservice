@@ -35,6 +35,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
   String imageurl = '';
   String _password = '';
   final User? user = Auth().currentUser;
+  List<String> _selecteddate = [];
 
   final TextEditingController _controllersFirstName = TextEditingController();
   final TextEditingController _controllersLastName = TextEditingController();
@@ -51,6 +52,27 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
     'ไม่มีศาสนา',
     'อื่นๆ'
   ];
+  final _optionsdate = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ];
+  void _ondateSelected(bool selected, String option) {
+    if (selected) {
+      setState(() {
+        _selecteddate.add(option);
+      });
+    } else {
+      setState(() {
+        _selecteddate.remove(option);
+      });
+    }
+  }
+
   // String selectedGender = "อื่นๆ";
   // String selectedRegion = "อื่นๆ";
   String? selectedDate;
@@ -68,6 +90,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
     required String region,
     required String phonenumber,
     required String gender,
+    required List<String> date,
   }) async {
     var collection = await FirebaseFirestore.instance
         .collection('Housekeeper')
@@ -79,6 +102,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
       'LastName': lname,
       'DateOfBirth': dob,
       'Gender': gender,
+      'DateAvailable': date,
     }).then((result) {
       print("new User true");
     }).catchError((onError) {
@@ -121,7 +145,10 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
 
   Future<void> _getDataFromFirebase() async {
     dataList = await getDataFromFirebase();
-    setState(() {});
+    print(dataList[0]['DateAvailable']);
+    setState(() {
+      _selecteddate = List<String>.from(dataList[0]['DateAvailable']);
+    });
     print(dataList);
     // print(dataList);
   }
@@ -233,7 +260,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
         body: SingleChildScrollView(
             child: SingleChildScrollView(
           child: Container(
-            height: 870,
+            height: 1150,
             width: double.infinity,
             // alignment: Alignment.center,
             child: dataList.isEmpty
@@ -272,46 +299,46 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                       //     return const CircularProgressIndicator.adaptive();
                       //   },
                       // ),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            /* _showPicker(context);*/
-                          },
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundColor: HexColor("#5D5FEF"),
-                            child: _photo != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: Image.file(
-                                      _photo!,
-                                      width: 110,
-                                      height: 110,
-                                      fit: BoxFit.fitHeight,
-                                    ),
-                                  )
-                                : Container(
-                                    // margin: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius:
-                                            BorderRadius.circular(50)),
-                                    width: 120,
-                                    height: 120,
-                                    child: Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.grey[800],
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                      // Center(
+                      //   child: GestureDetector(
+                      //     onTap: () {
+                      //       /* _showPicker(context);*/
+                      //     },
+                      //     child: CircleAvatar(
+                      //       radius: 60,
+                      //       backgroundColor: HexColor("#5D5FEF"),
+                      //       child: _photo != null
+                      //           ? ClipRRect(
+                      //               borderRadius: BorderRadius.circular(50),
+                      //               child: Image.file(
+                      //                 _photo!,
+                      //                 width: 110,
+                      //                 height: 110,
+                      //                 fit: BoxFit.fitHeight,
+                      //               ),
+                      //             )
+                      //           : Container(
+                      //               // margin: EdgeInsets.all(20),
+                      //               decoration: BoxDecoration(
+                      //                   color: Colors.grey[200],
+                      //                   borderRadius:
+                      //                       BorderRadius.circular(50)),
+                      //               width: 120,
+                      //               height: 120,
+                      //               child: Icon(
+                      //                 Icons.camera_alt,
+                      //                 color: Colors.grey[800],
+                      //               ),
+                      //             ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // SizedBox(
+                      //   height: 20,
+                      // ),
                       Container(
                           // margin: EdgeInsets.only(top: 30),
-                          height: 730,
+                          height: 1150,
                           decoration: BoxDecoration(
                               color: HexColor('#FFFFFF'),
                               borderRadius: BorderRadius.only(
@@ -656,6 +683,39 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                                     selectedGender = value.toString();
                                   },
                                 ),
+                                SizedboxHeaderForm(
+                                    "วันที่แม่บ้านไม่สะดวกรับงาน: "),
+                                Container(
+                                  height: 400,
+                                  decoration: BoxDecoration(
+                                      color: HexColor('#DFDFFC'),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(40))),
+                                  child: Column(
+                                    children: _optionsdate //_optionsdate
+                                        .map(
+                                          (date) => CheckboxListTile(
+                                            title: Text(date),
+                                            value: _selecteddate.contains(date),
+                                            onChanged: (selected) =>
+                                                // {
+                                                //   if (selected!) {
+                                                //     setState(() {
+                                                //       _selecteddate.add(date);
+                                                //     });
+                                                //   } else {
+                                                //     setState(() {
+                                                //       _selecteddate.remove(date);
+                                                //     });
+                                                //   }
+                                                // }
+                                                _ondateSelected(
+                                                    selected!, date),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
                                 const SizedBox(height: 30),
                                 Center(
                                   child: ElevatedButton(
@@ -699,14 +759,14 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                                       //bool result = await userExists(phonenumber);
                                       //if (result == false) {
                                       updatemaid(
-                                        useruid: widget.HousekeeperID,
-                                        fname: firstname,
-                                        lname: lastname,
-                                        dob: dob,
-                                        phonenumber: phonenumber,
-                                        gender: selectedGender.toString(),
-                                        region: selectedRegion.toString(),
-                                      );
+                                          useruid: widget.HousekeeperID,
+                                          fname: firstname,
+                                          lname: lastname,
+                                          dob: dob,
+                                          phonenumber: phonenumber,
+                                          gender: selectedGender.toString(),
+                                          region: selectedRegion.toString(),
+                                          date: _selecteddate);
                                       // await FirebaseAuth.instance.currentUser
                                       //     ?.updateDisplayName(
                                       //         firstname + ' ' + lastname);

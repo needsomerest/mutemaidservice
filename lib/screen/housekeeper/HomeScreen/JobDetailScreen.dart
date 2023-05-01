@@ -5,19 +5,20 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/Placedetail.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/ConfirmJobScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/SuccessJob.dart';
 import 'package:mutemaidservice/screen/housekeeper/MapScreen/RouteMapScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class JobDetailScreen extends StatefulWidget {
-  // const JobDetailScreen({super.key});
+  Maid maid;
   String BookingID;
   bool accept;
   String date;
   // DateTime
   // double distance;
-  JobDetailScreen(this.BookingID, this.accept, this.date);
+  JobDetailScreen(this.maid, this.BookingID, this.accept, this.date);
 
   @override
   State<JobDetailScreen> createState() => _JobDetailScreenState();
@@ -25,6 +26,7 @@ class JobDetailScreen extends StatefulWidget {
 
 late String BookedID;
 late String UserID;
+late Maid maidfinal;
 
 class _JobDetailScreenState extends State<JobDetailScreen> {
   Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
@@ -85,6 +87,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     setState(() {
       BookedID = widget.BookingID;
       UserID = dataList[1]['UserID'];
+      maidfinal = widget.maid;
       // price = dataList[0]['Money'] +
       //     (dataList[2]['PaymentPrice'] * 70 / 100).round();
     });
@@ -166,7 +169,9 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         child: Row(
                           children: [
                             Image.network(
-                              dataList[1]['profileimage'],
+                              dataList[1]['profileimage'] == ""
+                                  ? "https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/UserImage%2Fprofile.png?alt=media&token=71e218a0-8801-4cf4-bdd6-2b5b91fdd88c"
+                                  : dataList[1]['profileimage'],
                               height: 60,
                               width: 60,
                             ),
@@ -321,6 +326,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => ConfirmJobScreen(
+                                widget.maid,
                                 widget.accept,
                                 widget.BookingID,
                                 dataList,
@@ -372,8 +378,10 @@ _onAlertButtonPressedMaid(BuildContext context) {
         ),
         onPressed: () {
           deleteData();
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SuccessJob(true)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SuccessJob(maidfinal, true)));
         },
         // color: HexColor('#5D5FEF'),
       ),

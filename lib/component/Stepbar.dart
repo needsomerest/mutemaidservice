@@ -7,7 +7,7 @@ class stepbar extends StatefulWidget {
   // const stepbar({super.key});
   int stepnum;
   stepbar(this.stepnum);
-  List<int> steps = [1, 2, 3, 4, 5, 6, 7];
+  List<int> steps = [1, 2, 3, 4, 5];
   @override
   State<stepbar> createState() => _stepbarState();
 }
@@ -24,7 +24,7 @@ class _stepbarState extends State<stepbar> {
               width: 10,
             ),
             Container(
-              width: widget.stepnum == 7 ? 280 : ((widget.stepnum - 1) * 48),
+              width: widget.stepnum == 5 ? 280 : ((widget.stepnum - 1) * 75),
               child: Divider(
                 color: HexColor('#5D5FEF'),
                 thickness: 5,
@@ -32,7 +32,7 @@ class _stepbarState extends State<stepbar> {
             ),
             Container(
               width:
-                  widget.stepnum == 7 ? 0 : 280 - ((widget.stepnum - 1) * 48),
+                  widget.stepnum == 5 ? 0 : 280 - ((widget.stepnum - 1) * 75),
               child: Divider(
                 color: HexColor('#E6E6E6'),
                 thickness: 5,
@@ -49,7 +49,7 @@ class _stepbarState extends State<stepbar> {
                 color: step <= widget.stepnum
                     ? HexColor('#5D5FEF')
                     : HexColor('#E6E6E6'),
-                size: step <= widget.stepnum ? 24.0 : 16.0,
+                size: step <= widget.stepnum ? 20.0 : 16.0,
               )
           ],
         )

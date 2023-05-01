@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 
 class MyMoneyScreen extends StatefulWidget {
-  const MyMoneyScreen({super.key});
-  // String HousekeeperID;
-  // MyMoneyScreen(this.HousekeeperID);
+  final Maid maid;
+  MyMoneyScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
 
   @override
   State<MyMoneyScreen> createState() => _MyMoneyScreenState();
 }
 
 class _MyMoneyScreenState extends State<MyMoneyScreen> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
+  // final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
     List<Map<String, dynamic>> data = [];
 
@@ -22,13 +23,13 @@ class _MyMoneyScreenState extends State<MyMoneyScreen> {
     DocumentSnapshot<Map<String, dynamic>> userSnapshot =
         await FirebaseFirestore.instance
             .collection('Housekeeper')
-            .doc(HousekeeperID)
+            .doc(widget.maid.HousekeeperID)
             .get();
     Map<String, dynamic> UserData = userSnapshot.data()!;
     data.add(UserData);
 
     print(
-        'Number of User documents with Reservation ${HousekeeperID}: ${userSnapshot.data()}');
+        'Number of User documents with Reservation ${widget.maid.HousekeeperID}: ${userSnapshot.data()}');
 
     return data;
   }
@@ -69,7 +70,7 @@ class _MyMoneyScreenState extends State<MyMoneyScreen> {
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection("Housekeeper")
-              .doc(HousekeeperID)
+              .doc(widget.maid.HousekeeperID)
               .collection('MoneyHistory')
               .orderBy('Time', descending: true)
               .snapshots(),

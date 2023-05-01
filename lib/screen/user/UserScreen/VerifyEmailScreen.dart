@@ -1,14 +1,8 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/screen/HomeScreen.dart';
-import 'package:basic_utils/basic_utils.dart';
-import 'package:mutemaidservice/screen/admin/HomeScreen/HomeScreen.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});

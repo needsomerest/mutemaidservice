@@ -11,7 +11,6 @@ import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmInfoScreen.dart
 
 class MaidDetailScreen extends StatefulWidget {
   final String callby;
-  final String PhoneNumber;
   final ReservationData reservationData;
   final AddressData addressData;
   final Housekeeper housekeeper;
@@ -21,7 +20,6 @@ class MaidDetailScreen extends StatefulWidget {
   MaidDetailScreen(
       {Key? key,
       required this.callby,
-      required this.PhoneNumber,
       required this.reservationData,
       required this.addressData,
       required this.housekeeper,
@@ -106,7 +104,7 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
     return Scaffold(
         body: SingleChildScrollView(
             child: Container(
-                height: 1180,
+                height: 1100,
                 width: 800,
                 alignment: Alignment.center,
                 child: Column(
@@ -121,7 +119,7 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                       height: 340,
                     ),*/
                     Container(
-                      height: 300,
+                      height: 200,
                       width: 400,
                       margin: EdgeInsets.only(left: 30, right: 30),
                       child: Column(
@@ -211,25 +209,25 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Image.asset(
-                                "assets/images/locationpoint.png",
-                                height: 23,
-                                width: 23,
-                              ),
-                              SizedBox(width: 10),
-                              Flexible(
-                                child: Text(
-                                  '126 ถ. ประชาอุทิศ แขวง บางมด เขตทุ่งครุ กรุงเทพมหานคร 10140',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // SizedBox(height: 10),
+                          // Row(
+                          //   children: [
+                          //     Image.asset(
+                          //       "assets/images/locationpoint.png",
+                          //       height: 23,
+                          //       width: 23,
+                          //     ),
+                          //     SizedBox(width: 10),
+                          //     Flexible(
+                          //       child: Text(
+                          //         '126 ถ. ประชาอุทิศ แขวง บางมด เขตทุ่งครุ กรุงเทพมหานคร 10140',
+                          //         style: TextStyle(
+                          //             fontWeight: FontWeight.w500,
+                          //             fontSize: 16),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           SizedBox(height: 10),
                           Row(
                             children: [
@@ -240,7 +238,7 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                               ),
                               SizedBox(width: 10),
                               Text(
-                                widget.PhoneNumber,
+                                widget.housekeeper.PhoneNumber,
                                 style: TextStyle(
                                     fontWeight: FontWeight.w500, fontSize: 16),
                               ),
@@ -378,48 +376,6 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                         ]
                       ],
                     ),
-
-                    /* Container(
-                      height: 60,
-                      width: 600,
-                      margin: EdgeInsets.only(left: 30, right: 30),
-                      child: ListView.builder(
-                          itemCount: 6,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: ((context, index) => Container(
-                                height: 50,
-                                width: 100,
-                                child: Center(
-                                  child: StarButton(
-                                    widget.title[index],
-                                    35,
-                                    85,
-                                    18,
-                                    16,
-                                    widget.star,
-                                  ),
-                                ),
-                              ))),
-                    ),*/
-
-                    // Row(
-                    //   children: [
-                    //     StarButton("ทั้งหมด", 35, 85, 18, 16, true),
-                    //     StarButton("5", 35, 85, 18, 16, false),
-                    //     StarButton("4", 35, 85, 18, 16, false),
-                    //     StarButton("3", 35, 85, 18, 16, false),
-                    //     // InkWell(
-                    //     //   child: StarButton(
-                    //     //       "ทั้งหมด", 35, 85, 18, 16, true),
-                    //     //   onTap: (() {
-                    //     //     setState(() {
-                    //     //       widget.star = true;
-                    //     //     });
-                    //     //   }),
-                    //     // ),
-                    //   ],
-                    // ),
-
                     Container(
                       height: 50,
                       width: 500,

@@ -49,6 +49,7 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
   final TextEditingController _controllersVaccine = TextEditingController();
   final TextEditingController _controllersBankname = TextEditingController();
   final TextEditingController _controllersBankid = TextEditingController();
+  late String date;
   Future createMaid({
     required String profileimage,
     // required String email,
@@ -64,6 +65,7 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
     required String bankname,
     required String bankid,
     required List<String> date,
+    required String password,
   }) async {
     final docMaid = await FirebaseFirestore.instance.collection('Housekeeper');
 
@@ -83,6 +85,9 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
       'BankID': bankid,
       'Money': 0,
       'DateAvailable': date,
+      'Pin': "",
+      'MaxDistance': 100,
+      'Password': password
     };
     await docMaid.add(json);
 
@@ -98,7 +103,10 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
     content: const Text('อีเมลดังกล่าวได้ถูกใช้งานแล้ว'),
     backgroundColor: HexColor("#5D5FEF"),
   );
-
+  // final snackInvalidInputFail = SnackBar(
+  //   content: const Text('โปรดกรอกข้อมูลให้ครบถ้วน'),
+  //   backgroundColor: HexColor("#5D5FEF"),
+  // );
   // final snackBarPasswordFail = SnackBar(
   //   content: const Text('กรุณาตั้งรหัสผ่านมากกว่า 6 ตัวขึ้นไป'),
   //   backgroundColor: HexColor("#5D5FEF"),
@@ -342,6 +350,12 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                               //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
                             ),
                           )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'โปรดใส่ชื่อของคุณ';
+                        }
+                        return null;
+                      },
                     ),
                     SizedboxHeaderForm("นามสกุล : "),
                     TextFormField(
@@ -370,6 +384,12 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                               //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
                             ),
                           )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'โปรดใส่นามสกุลของคุณ';
+                        }
+                        return null;
+                      },
                     ),
                     SizedboxHeaderForm("วัน/เดือน/ปี เกิด : "),
                     TextFormField(
@@ -402,6 +422,12 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                             Icons.date_range_outlined,
                             color: HexColor("#5D5FEF"),
                           )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'โปรดเลือกวัน/เดือน/ปีเกิด';
+                        }
+                        return null;
+                      },
                       readOnly: true, // when true user cannot edit text
                       onTap: () async {
                         DateTime? pickeddate = await DatePicker.showDatePicker(
@@ -418,6 +444,7 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                           setState(() {
                             _controllersDateOfBirth.text =
                                 DateFormat.yMMMMd('en_US').format(pickeddate);
+                            date = DateFormat('ddMMyyyy').format(pickeddate);
                           });
                         }
                       },
@@ -474,7 +501,7 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                           .toList(),
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select region.';
+                          return 'โปรดเลือกศาสนาของคุณ';
                         }
                       },
                       value: selectedRegion,
@@ -565,7 +592,7 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                           .toList(),
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select gender.';
+                          return 'โปรดเลือกเพศของคุณ';
                         }
                       },
                       value: selectedGender,
@@ -765,6 +792,12 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                               //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
                             ),
                           )),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'โปรดใส่ชื่อธนาคาร';
+                        }
+                        return null;
+                      },
                     ),
                     SizedboxHeaderForm("หมายเลขบัญชี  : "),
                     TextFormField(
@@ -807,25 +840,46 @@ class _AddMaidScreenState extends State<AddMaidScreen> {
                   final bankname = _controllersBankname.text;
                   final bankid = _controllersBankid.text;
                   bool result = await userExists(phonenumber);
+                  bool checked = false;
+                  if (firstname != "" &&
+                      lastname != "" &&
+                      dob != "" &&
+                      phonenumber != "" &&
+                      bankname != "" &&
+                      bankid != "") {
+                    checked = true;
+                  } else {
+                    checked = false;
+                  }
+                  //  final date = DateFormat('ddMMyyyy').format(dob);
+                  // print(date);
                   if (result == false) {
-                    createMaid(
-                        profileimage: imageurl,
-                        // email: email,
-                        firstname: firstname,
-                        lastname: lastname,
-                        dob: dob,
-                        phonenumber: phonenumber,
-                        gender: selectedGender.toString(),
-                        region: selectedRegion.toString(),
-                        hearranking: int.parse(selectedListen),
-                        vaccinated: int.parse(selectedVaccine),
-                        bankid: bankid,
-                        bankname: bankname,
-                        commu: _selectedOptions.join(', '),
-                        date: _selecteddate);
+                    if (checked == true) {
+                      createMaid(
+                          profileimage: imageurl,
+                          // email: email,
+                          firstname: firstname,
+                          lastname: lastname,
+                          dob: dob,
+                          phonenumber: phonenumber,
+                          gender: selectedGender.toString(),
+                          region: selectedRegion.toString(),
+                          hearranking: int.parse(selectedListen),
+                          vaccinated: int.parse(selectedVaccine),
+                          bankid: bankid,
+                          bankname: bankname,
+                          commu: _selectedOptions.join(', '),
+                          date: _selecteddate,
+                          password: date);
 
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AddSuccess()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddSuccess()));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(snackBarSubmitFail);
+                    }
                   } else {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(snackInvalidPhoneNumberFail);

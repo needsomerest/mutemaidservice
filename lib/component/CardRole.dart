@@ -1,13 +1,7 @@
-// import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-
-import '../component/CardPromotion.dart';
 
 class CardRole extends StatefulWidget {
-  // const CardRole({super.key});
   String img;
   String title;
   CardRole(this.img, this.title);
@@ -35,9 +29,7 @@ class _CardRoleState extends State<CardRole> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  // "assets/images/viber.png",
                   widget.img,
-                  // color: Colors.white,
                   color: HexColor('5D5FEF'),
                   width: 150,
                   height: 120,
@@ -46,10 +38,8 @@ class _CardRoleState extends State<CardRole> {
                   padding: EdgeInsets.only(top: 10),
                   child: Text(
                     widget.title,
-                    // overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontSize: 20,
-                        // color: Colors.white,
                         color: HexColor('5D5FEF'),
                         fontWeight: FontWeight.bold),
                   ),

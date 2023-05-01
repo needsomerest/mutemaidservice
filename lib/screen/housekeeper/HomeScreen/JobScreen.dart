@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:math' show cos, sqrt, asin;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,21 +7,20 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:mutemaidservice/component/CardJob.dart';
-import 'package:mutemaidservice/component/CardJobTest.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 
 class JobScreen extends StatefulWidget {
-  // JobScreen(this.currentLocation);
-  // String HousekeeperID;
-  // JobScreen(this.HousekeeperID);
+  final Maid maid;
+  JobScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
   @override
   State<JobScreen> createState() => _JobScreenState();
 }
 
 class _JobScreenState extends State<JobScreen> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
+  // final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   late GeoPoint location1;
   late GeoPoint location2;
   late String ReservationId;
@@ -58,7 +56,7 @@ class _JobScreenState extends State<JobScreen> {
       DocumentSnapshot<Map<String, dynamic>> maidSnapshot =
           await FirebaseFirestore.instance
               .collection("Housekeeper")
-              .doc(HousekeeperID)
+              .doc(widget.maid.HousekeeperID)
               .get();
 
       print('Number of Review documents: ${maidSnapshot.data()}');
@@ -68,7 +66,7 @@ class _JobScreenState extends State<JobScreen> {
               .collection("User")
               .doc(UserDoc.id)
               .collection('Reservation')
-              .where('HousekeeperID', isEqualTo: HousekeeperID)
+              .where('HousekeeperID', isEqualTo: widget.maid.HousekeeperID)
               .where('HousekeeperRequest', isEqualTo: "กำลังตรวจสอบ")
               .get();
 
@@ -209,7 +207,9 @@ class _JobScreenState extends State<JobScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HomeMaidScreen()));
+                                  builder: (context) => HomeMaidScreen(
+                                        maid: widget.maid,
+                                      )));
                         },
                       ),
                     )
@@ -391,6 +391,7 @@ class _JobScreenState extends State<JobScreen> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   JobDetailScreen(
+                                                      widget.maid,
                                                       data['ReservationId'],
                                                       false,
                                                       "")));

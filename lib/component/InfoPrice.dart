@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/PaymentData.dart';
 
@@ -42,7 +40,7 @@ class InfoPrice extends StatelessWidget {
       Price = Price + 0;
     }
 
-    if (Package == 'รายครั้ง') {
+    if (Package == 'รายครั้ง' || Package == 'ครั้งเดียว') {
       Price = Price + 220;
     } else if (Package == 'รายเดือน') {
       Price = Price + 180;
@@ -95,7 +93,7 @@ class InfoPrice extends StatelessWidget {
           ]),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(
-              AddressSize,
+              "ภาษีมูลค่าเพิ่ม 7%",
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

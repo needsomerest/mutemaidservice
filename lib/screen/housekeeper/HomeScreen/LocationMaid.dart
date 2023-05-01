@@ -2,17 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobScreen.dart';
 
 class LocationMaid extends StatefulWidget {
-  // String HousekeeperID;
-  // LocationMaid(this.HousekeeperID);
+  final Maid maid;
+  LocationMaid({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
   @override
   _LocationMaidState createState() => _LocationMaidState();
 }
 
 class _LocationMaidState extends State<LocationMaid> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
+  // final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   late Position userLocation;
   late GoogleMapController mapController;
   Future setLocation({
@@ -20,7 +22,7 @@ class _LocationMaidState extends State<LocationMaid> {
   }) async {
     final docHousekeeper = await FirebaseFirestore.instance
         .collection('Housekeeper')
-        .doc(HousekeeperID);
+        .doc(widget.maid.HousekeeperID);
 
     final json = {
       'CurrentLocation': value,
@@ -104,7 +106,9 @@ class _LocationMaidState extends State<LocationMaid> {
               MaterialPageRoute(
                   builder: (context) =>
                       // CalculateDistance(widget.HousekeeperID)
-                      JobScreen()
+                      JobScreen(
+                        maid: widget.maid,
+                      )
                   // JobDetailScreen(
                   //     "AlK1obLuMav3f3zOIFIA", false)
                   ));

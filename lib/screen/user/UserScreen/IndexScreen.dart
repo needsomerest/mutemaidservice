@@ -44,61 +44,15 @@ class UserSystem extends StatelessWidget {
                   width: 400,
                 ),
               ),
-              HeaderAccount("ยินดีต้อนรับ", 26, "#000000"),
-              Container(
-                  //Sign In by Facebook
-                  margin: EdgeInsets.symmetric(vertical: 6.0),
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
-                      onPrimary: HexColor("#5D5FEF"),
-                      minimumSize: Size(350, 40),
-                    ),
-                    icon: FaIcon(FontAwesomeIcons.facebook), //color:
-                    label: Text(
-                      'ดำเนินการต่อด้วย Facebook',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        // fontWeight: FontWeight.bold
-                      ),
-                    ),
-                    onPressed: () {
-                      AuthGoogle().signInWithGoogle();
-                      /*final provider =
-                    Provider.of<GoogleSignInProvider>(context, listen: false);
-                provider.googleLogin();*/
-                    },
-                  )),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.white,
-                    onPrimary: HexColor("#5D5FEF"),
-                    minimumSize: Size(350, 40),
-                  ),
-                  icon: FaIcon(FontAwesomeIcons.google), //color:
-                  label: Text(
-                    'ดำเนินการต่อด้วย Google',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      // fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  onPressed: () {
-                    AuthGoogle().signInWithGoogle();
-                    /*final provider =
-                    Provider.of<GoogleSignInProvider>(context, listen: false);
-                provider.googleLogin();*/
-                  },
-                ),
-                //Sign In by gmail
+              HeaderAccount("ยินดีต้อนรับเข้าสู่", 22, "#000000"),
+              HeaderAccount("Mute Maid Service", 26, "#5D5FEF"),
+              Text(
+                'แอปพลิเคชันสำหรับค้นหาแม่บ้านออนไลน์เพื่อแม่บ้านผู้บกพร่องทางการได้ยิน',
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
-              DividerAccount("หรือ", 10),
-              const SizedBox(height: 10),
+              SizedBox(
+                height: 50,
+              ),
               Container(
                 //Sign In Default
                 child: ElevatedButton(

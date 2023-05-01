@@ -1,5 +1,3 @@
-// import 'dart:js_util';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:mutemaidservice/component/Chatside.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/user/ChatScreen/ChatScreen.dart';
 import '../../../component/ChatAtom.dart';
@@ -25,12 +22,154 @@ class ChatHistoryScreen extends StatefulWidget {
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
 }
 
+class Message {
+  final String id;
+  final String sender;
+  final String receiver;
+  final String text;
+  final Timestamp timestamp;
+
+  Message(
+      {required this.id,
+      required this.sender,
+      required this.receiver,
+      required this.text,
+      required this.timestamp});
+}
+
 class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
+  List<Map<String, dynamic>> mergedDataList = [];
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final User? user = Auth().currentUser;
+  late String uid = '';
+
+  String gencode(String sender, String receiver) {
+    String code = "";
+    int comparisonResult = sender.compareTo(receiver);
+    if (comparisonResult > 0) {
+      code = "${sender.substring(0, 5)}${receiver.substring(0, 5)}";
+      print(code);
+    } else if (comparisonResult < 0) {
+      code = "${receiver.substring(0, 5)}${sender.substring(0, 5)}";
+      print(code);
+    } else {
+      code = "${sender.substring(0, 5)}${receiver.substring(0, 5)}";
+      print(code);
+    }
+    return code;
+  }
+
+  Future<List<Message>> getLatestMessages(String uid) async {
+    QuerySnapshot<Map<String, dynamic>> messagesSnapshot =
+        await FirebaseFirestore.instance
+            .collection("Messages")
+            .where('sender', isEqualTo: uid)
+            .get();
+    List<String> uniqueReceivers = messagesSnapshot.docs
+        .map((doc) => doc['receiver'])
+        .toSet()
+        .toList()
+        .cast<String>();
+    List<Message> latestMessages = [];
+    for (String receiver in uniqueReceivers) {
+      String code = gencode(uid, receiver);
+      QuerySnapshot<Map<String, dynamic>> subQuerySnapshot =
+          await FirebaseFirestore.instance
+              .collection('Messages')
+              .where('code', isEqualTo: code)
+              // .where('sender', isEqualTo: uid)
+              // .where('receiver', isEqualTo: receiver)
+              .orderBy('time', descending: true)
+              .limit(1)
+              .get();
+      if (subQuerySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot<Map<String, dynamic>> messageDoc =
+            subQuerySnapshot.docs[0];
+        Message message = Message(
+            id: messageDoc.id,
+            sender: messageDoc['sender'],
+            receiver: messageDoc['receiver'],
+            text: messageDoc['message'],
+            timestamp: messageDoc['time']);
+        latestMessages.add(message);
+      }
+    }
+    return latestMessages;
+  }
+
+  List<Message> latestMessages = [];
+  List<Map<String, dynamic>> data = [];
+  Future<List<Map<String, dynamic>>> getHousekeeperSnapshots(String uid) async {
+    latestMessages = await getLatestMessages(uid);
+    for (Message message in latestMessages) {
+      String receiver;
+      if (message.receiver != uid) {
+        receiver = message.receiver;
+      } else {
+        receiver = message.sender;
+      }
+      // print('Message ID: ${message.id}');
+      // print('Sender: ${message.sender}');
+      // print('Receiver: ${message.receiver}');
+      // print('Text: ${message.text}');
+      // print('Timestamp: ${message.timestamp.toDate()}');
+      // String receiver = message.receiver;
+      DocumentSnapshot<Map<String, dynamic>> housekeeperSnapshot =
+          await FirebaseFirestore.instance
+              .collection('Housekeeper')
+              .doc(receiver)
+              .get();
+
+      Map<String, dynamic> housekeeperData = housekeeperSnapshot.data()!;
+      housekeeperData['housekeeperId'] = receiver;
+      // dataList.add(housekeeperData);
+      // print(dataList.length);
+      // for (int i = 0; i < dataList.length; i++) {
+      //   String receiver = dataList[i]['housekeeperId'];
+      // if (message.receiver == receiver) {
+      Map<String, dynamic> mergedData =
+          Map<String, dynamic>.from(housekeeperData);
+      mergedData['latestMessageId'] = message.id;
+      mergedData['latestMessageText'] = message.text;
+      mergedData['latestMessageTimestamp'] = message.timestamp;
+      mergedDataList.add(mergedData);
+      // }
+      // }
+      // print(dataList.length);
+    }
+    // print(mergedDataList.length);
+    // for (int i = 0; i < mergedDataList.length; i++) {
+    //   print(mergedDataList[i]);
+    // }
+    return mergedDataList;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final _uid = user?.uid;
+    setState(() {
+      uid = _uid.toString();
+    });
+    _getDataFromFirebase();
+  }
+
+  Future<void> _getDataFromFirebase() async {
+    data = await getHousekeeperSnapshots(uid);
+    setState(() {});
+    print(data.length);
+    for (int i = 0; i < data.length; i++) {
+      print(data[i]);
+    }
+    // print(data);
+    // print(dataList);
+  }
+
+  // final User? user = Auth().currentUser;
   @override
   Widget build(BuildContext context) {
-    final _uid = user?.uid;
-    String uid = _uid.toString();
+    // final _uid = user?.uid;
+    // String uid = _uid.toString();
     int _selectedIndex = 2;
     final screens = [
       HomeScreen(),
@@ -44,22 +183,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        // leading:
-        //     // GestureDetector(
-        //     //   onTap: () {
-        //     //     Navigator.push(
-        //     //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-        //     //   }, child:
-        //     Icon(
-        //   Icons.keyboard_backspace,
-        //   color: Colors.white,
-        //   size: 30,
-        // ),
-        // ),
-        //  Icon(
-        //     Icons.keyboard_backspace,
-        //     color: Colors.white,
-        //   ),
         title: Text('ข้อความ',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       ),
@@ -72,25 +195,55 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               color: HexColor('#FFFFFF'),
               borderRadius: BorderRadius.only(
                   topRight: Radius.circular(30), topLeft: Radius.circular(30))),
-          child: InkWell(
-            child: Column(children: [
-              ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
-                  "กำลังจะไปถึงค่ะ"),
-              ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
-                  "กำลังจะไปถึงค่ะ"),
-              ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
-                  "กำลังจะไปถึงค่ะ"),
-            ]),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          // test()
-                          // chatpage("ZhkVnQ10zU28sFaURHU6", uid)
-                          ChatScreen(uid, "ZhkVnQ10zU28sFaURHU6")));
-            },
-          ),
+          child: mergedDataList.isNotEmpty
+              ? ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    // return Text(index.toString());
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    // test()
+                                    // chatpage("ZhkVnQ10zU28sFaURHU6", uid)
+                                    ChatScreen(
+                                        uid, data[index]['housekeeperId'])));
+                      },
+                      child: ChatAtom(
+                          data[index]['profileImage'],
+                          "${data[index]['FirstName']} ${data[index]['LastName']}",
+                          data[index]['latestMessageText']),
+                    );
+                  })
+              // : CircularProgressIndicator()
+              : Center(
+                  child: Text("ยังไม่มีรายการ"),
+                ),
+
+          // child:dataList['housekeeperId']==latestMessages['Receiver']?Text("yes"):Text("no")
+          //: InkWell(
+          //   child:
+          //   Column(
+          //     children: [
+          //     ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
+          //         "กำลังจะไปถึงค่ะ"),
+          // ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
+          //         "กำลังจะไปถึงค่ะ"),
+          //     ChatAtom("assets/images/profilemaid.jpg", "ขวัญฤดี งามดี",
+          //         "กำลังจะไปถึงค่ะ"),
+          //   ]),
+          //   onTap: () {
+          //     // Navigator.push(
+          //     //     context,
+          //     //     MaterialPageRoute(
+          //     //         builder: (context) =>
+          //     //             // test()
+          //     //             // chatpage("ZhkVnQ10zU28sFaURHU6", uid)
+          //     //             ChatScreen(uid, "ZhkVnQ10zU28sFaURHU6")));
+          //   },
+          // ),
         ),
       ),
       bottomNavigationBar: Container(

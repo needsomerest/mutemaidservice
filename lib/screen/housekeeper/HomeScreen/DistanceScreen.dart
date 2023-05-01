@@ -4,26 +4,27 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/CalculateDistance.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/LocationMaid.dart';
 import 'package:mutemaidservice/screen/user/PlaceScreen/map.dart';
 
 class DistanceScreen extends StatefulWidget {
-  const DistanceScreen({super.key});
-  // String HousekeeperID;
-  // DistanceScreen(this.HousekeeperID);
+  final Maid maid;
+  DistanceScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
   @override
   State<DistanceScreen> createState() => _DistanceScreenState();
 }
 
 class _DistanceScreenState extends State<DistanceScreen> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
+  // final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   Future setDistance({
     required int value,
   }) async {
     final docHousekeeper = await FirebaseFirestore.instance
         .collection('Housekeeper')
-        .doc(HousekeeperID);
+        .doc(widget.maid.HousekeeperID);
 
     final json = {
       'MaxDistance': value,
@@ -127,7 +128,9 @@ class _DistanceScreenState extends State<DistanceScreen> {
                         MaterialPageRoute(
                             builder: (context) =>
                                 // LocationMaid()
-                                LocationMaid()
+                                LocationMaid(
+                                  maid: widget.maid,
+                                )
                             // JobDetailScreen(
                             //     "AlK1obLuMav3f3zOIFIA", false)
                             ));

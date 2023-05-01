@@ -45,6 +45,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
         'PaymentStatus': status,
         'PaymentMaidImage': paymentimage,
       });
+
       print("Update User success");
     } catch (e) {
       print("Error updating User: $e");
@@ -53,8 +54,8 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
 
   Future<void> addHistoryMoney({
     required String bookingid,
-    required int money,
-    required int income,
+    required double money,
+    required double income,
     required DateTime time,
   }) async {
     try {
@@ -75,7 +76,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
   }
 
   Future<void> updateMoney({
-    required int money,
+    required double money,
   }) async {
     try {
       final docMoney = await FirebaseFirestore.instance
@@ -163,7 +164,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
   //   return data;
   // }
 
-  late int price;
+  late double price;
   List<Map<String, dynamic>> datamaidList = [];
 
   @override
@@ -456,16 +457,14 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
                             ),
                             onPressed: () {
                               print(widget.dataList[2]['PaymentStatus']);
-                              // int total;
-                              // int money;
+                              int money = datamaidList[0]['Money'] ?? 0.0;
+                              double paymentPrice =
+                                  widget.dataList[2]['PaymentPrice'] ?? 0.0;
                               if (widget.dataList[2]['PaymentStatus'] ==
                                   "กำลังตรวจสอบ") {
-                                int money = datamaidList[0]['Money'] ?? 0;
-                                int paymentPrice =
-                                    widget.dataList[2]['PaymentPrice'] ?? 0;
                                 setState(() {
-                                  price =
-                                      money + (paymentPrice * 70 / 100).round();
+                                  price = money.toDouble() +
+                                      (paymentPrice * 70 / 100).round();
                                 });
                                 // setState(() {
                                 //   money=dataList[0]['Money'];
@@ -476,7 +475,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
                                   bookingid: widget.dataList[2]
                                       ['ReservationId'],
                                   money: price,
-                                  income: (paymentPrice * 70 / 100).round(),
+                                  income: (paymentPrice * 70 / 100),
                                   time: DateTime.now(),
                                 ).then((value) {
                                   print('Money updated successfully!');

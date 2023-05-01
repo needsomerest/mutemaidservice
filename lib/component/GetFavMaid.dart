@@ -4,9 +4,9 @@ import 'package:mutemaidservice/component/MaidDetail.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:validators/sanitizers.dart';
 
 class GetFavMaid extends StatefulWidget {
-  String housekeeperid;
   bool booked;
   String userid;
   ReservationData reservationData;
@@ -14,17 +14,19 @@ class GetFavMaid extends StatefulWidget {
   Housekeeper housekeeper;
   AddressData addressData;
   String Reservation_Day;
+  int distance;
 
-  GetFavMaid(
-      {Key? key,
-      required this.housekeeperid,
-      required this.booked,
-      required this.userid,
-      required this.reservationData,
-      required this.callby,
-      required this.housekeeper,
-      required this.addressData,
-      required this.Reservation_Day});
+  GetFavMaid({
+    Key? key,
+    required this.booked,
+    required this.userid,
+    required this.reservationData,
+    required this.callby,
+    required this.housekeeper,
+    required this.addressData,
+    required this.Reservation_Day,
+    required this.distance,
+  });
 
   @override
   State<GetFavMaid> createState() => _GetFavMaidState();
@@ -38,7 +40,7 @@ class _GetFavMaidState extends State<GetFavMaid> {
     DocumentSnapshot<Map<String, dynamic>> userSnapshot =
         await FirebaseFirestore.instance
             .collection('Housekeeper')
-            .doc(widget.housekeeperid)
+            .doc(widget.housekeeper.HousekeeperID)
             .get();
     Map<String, dynamic> UserData = userSnapshot.data()!;
     data.add(UserData);
@@ -63,91 +65,26 @@ class _GetFavMaidState extends State<GetFavMaid> {
   @override
   Widget build(BuildContext context) {
     if (dataList.isNotEmpty) {
+      widget.housekeeper.FirstName = dataList[0]['FirstName'];
+      widget.housekeeper.LastName = dataList[0]['LastName'];
+      widget.housekeeper.ProfileImage = dataList[0]['profileImage'];
+      widget.housekeeper.HearRanking = dataList[0]['HearRanking'];
+      widget.housekeeper.Vaccinated = dataList[0]['Vaccinated'];
+      widget.housekeeper.CommunicationSkill = dataList[0]['CommunicationSkill'];
+      widget.housekeeper.PhoneNumber = dataList[0]['PhoneNumber'];
       return MaidDetail(
           widget.userid,
-          widget.housekeeperid,
-          dataList[0]['FirstName'],
-          dataList[0]['LastName'],
-          dataList[0]['profileImage'],
-          dataList[0]['HearRanking'],
-          dataList[0]['Vaccinated'],
-          0,
-          dataList[0]['CommunicationSkill'],
           true,
           widget.booked,
           widget.reservationData,
           widget.callby,
           widget.housekeeper,
-          dataList[0]['PhoneNumber'],
           widget.addressData,
-          widget.Reservation_Day);
-      dataList = [];
+          widget.Reservation_Day,
+          widget.distance,
+          dataList[0]['CurrentLocation']);
     } else {
       return Container();
     }
   }
 }
-
-/**
- * 
-
-class FavMaidList extends StatelessWidget {
-  bool booked;
-  String callby;
-  String userID;
-  final ReservationData reservationData;
-  final Housekeeper housekeeper;
-
-  FavMaidList(
-      {Key? key,
-      required this.booked,
-      required this.userID,
-      required this.reservationData,
-      required this.callby,
-      required this.housekeeper})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      body: StreamBuilder(
-          stream: FirebaseFirestore.instance
-              .collection("User")
-              .doc(userID)
-              .collection("FavHousekeeper")
-              .snapshots(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return ListView(
-                children: snapshot.data!.docs.map((MaidDocument) {
-                  return Center(
-                    child: Flexible(
-                        child: Column(children: [
-                      MaidDetail(
-                        userID,
-                        MaidDocument.id,
-                        MaidDocument["FirstName"],
-                        MaidDocument["LastName"],
-                        MaidDocument["profileImage"],
-                        MaidDocument["HearRanking"],
-                        MaidDocument["Vaccinated"],
-                        0, //double
-                        MaidDocument["CommunicationSkill"],
-
-                        true,
-                        booked,
-                        reservationData,
-                        callby,
-                        housekeeper, MaidDocument["PhoneNumber"],
-                      ),
-                    ])),
-                  );
-                }).toList(),
-              );
-            }
-          }));
-}
-
- */

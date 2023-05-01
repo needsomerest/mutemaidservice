@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/admin/SigninScreen/IndexAdminScreen.dart';
 import 'package:mutemaidservice/screen/admin/SigninScreen/SiginAdminScreen.dart';
-import 'package:mutemaidservice/screen/admin/SigninScreen/VerifyEmailMaidScreen.dart';
+import 'package:mutemaidservice/screen/admin/SigninScreen/VerifyEmailAdminScreen.dart';
 import 'package:mutemaidservice/screen/user/UserScreen/IndexScreen.dart';
 import 'package:mutemaidservice/screen/user/UserScreen/VerifyEmailScreen.dart';
 
@@ -23,7 +23,7 @@ class _WidgetTreeAdminState extends State<WidgetTreeAdmin> {
       stream: Auth().authStateChange,
       builder: ((context, snapshot) {
         if (snapshot.hasData) {
-          return VerifyEmailMaidScreen(); //HomeScreen();
+          return VerifyEmailAdminScreen(); //HomeScreen();
         } else {
           return IndexAdminScreen(); //Payment(); // //MyBooking(booking); //IndexScreen();
         }

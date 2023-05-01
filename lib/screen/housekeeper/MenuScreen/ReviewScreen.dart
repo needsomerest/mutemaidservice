@@ -3,9 +3,12 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/CardReview.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 
 class ReviewScreen extends StatefulWidget {
-  const ReviewScreen({super.key});
+  final Maid maid;
+  ReviewScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -45,7 +48,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
               Container(
                 height: 500,
                 width: 500,
-                child: CardReview(),
+                child: CardReview(
+                  maid: widget.maid,
+                ),
               )
             ],
           ),

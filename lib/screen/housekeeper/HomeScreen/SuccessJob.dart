@@ -2,12 +2,13 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/main.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 
 class SuccessJob extends StatelessWidget {
-  // const SuccessJob({super.key});
+  Maid maid;
   bool accept;
-  SuccessJob(this.accept);
+  SuccessJob(this.maid, this.accept);
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +71,8 @@ class SuccessJob extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeMaidScreen()));
+                                builder: (context) =>
+                                    HomeMaidScreen(maid: maid)));
                       },
                     ),
                   )

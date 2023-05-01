@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,40 +7,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocode/geocode.dart';
 
 import 'package:mutemaidservice/component/CardPromotion.dart';
+import 'package:mutemaidservice/component/CheckDateTimeBooking.dart';
 import 'package:mutemaidservice/component/MaidDetail.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 
 class MaidList extends StatefulWidget {
   bool booked;
-  String userID;
   final ReservationData reservationData;
   final Housekeeper housekeeper;
+  final AddressData addressData;
   final String Reservation_Day;
+  final int distance;
 
   MaidList(
       {Key? key,
-      required this.userID,
       required this.booked,
       required this.reservationData,
       required this.housekeeper,
-      required this.Reservation_Day})
-      : super(key: key);
-  final newAddress = AddressData(
-      "AddressID",
-      "Addressimage",
-      "Type",
-      "SizeRoom",
-      "Address",
-      "AddressDetail",
-      "Province",
-      "District",
-      "Phonenumber",
-      "Note",
-      "User",
-      GeoPoint(0, 0));
+      required this.Reservation_Day,
+      required this.addressData,
+      required this.distance});
 
   @override
   State<MaidList> createState() => _MaidListState();
@@ -74,6 +66,7 @@ Future<bool> DateTimeInReservation(
 }
 
 class _MaidListState extends State<MaidList> {
+  final User? user = Auth().currentUser;
   @override
   Widget build(BuildContext context) => Scaffold(
       body: StreamBuilder(
@@ -88,30 +81,54 @@ class _MaidListState extends State<MaidList> {
               return ListView(
                 // scrollDirection: Axis.horizontal,
                 children: snapshot.data!.docs.map((MaidDocument) {
+                  final newHousekeeper = Housekeeper(
+                      "HousekeeperID",
+                      "FirstName",
+                      "LastName",
+                      "ProfileImage",
+                      0,
+                      0,
+                      0,
+                      "CommunicationSkill",
+                      "PhoneNumber");
+
+                  newHousekeeper.HousekeeperID = MaidDocument.id;
+                  newHousekeeper.FirstName = MaidDocument["FirstName"];
+                  newHousekeeper.LastName = MaidDocument["LastName"];
+                  newHousekeeper.ProfileImage = MaidDocument["profileImage"];
+                  newHousekeeper.HearRanking = MaidDocument["HearRanking"];
+                  newHousekeeper.Vaccinated = MaidDocument["Vaccinated"];
+                  newHousekeeper.CommunicationSkill =
+                      MaidDocument["CommunicationSkill"];
+                  newHousekeeper.PhoneNumber = MaidDocument["PhoneNumber"];
                   return Center(
                     child: Flexible(
                         child: Column(children: [
-                      MaidDetail(
-                          widget.userID,
-                          MaidDocument.id,
-                          MaidDocument["FirstName"],
-                          MaidDocument["LastName"],
-                          MaidDocument["profileImage"],
-                          MaidDocument["HearRanking"],
-                          MaidDocument["Vaccinated"],
-                          0, //double
-                          MaidDocument["CommunicationSkill"],
-                          false,
-                          widget.booked,
-                          widget.reservationData,
-                          'null',
-                          widget.housekeeper,
-                          MaidDocument["PhoneNumber"],
-                          widget.newAddress,
-                          widget.Reservation_Day),
-                      SizedBox(
-                        height: 20,
+                      CheckDateTimeBooking(
+                        UserID: user!.uid,
+                        Reservation_Day: widget.Reservation_Day,
+                        reservationData: widget.reservationData,
+                        callby: 'maidlist',
+                        housekeeper: newHousekeeper,
+                        addressData: widget.addressData,
+                        booked: widget.booked,
+                        checkby: true,
+                        distance: widget.distance,
+                        location_maid: MaidDocument["CurrentLocation"],
                       ),
+                      // MaidDetail(
+                      //     widget.userID,
+                      //     0, //double
+                      //     false,
+                      //     widget.booked,
+                      //     widget.reservationData,
+                      //     'null',
+                      //     newHousekeeper,
+                      //     widget.newAddress,
+                      //     widget.Reservation_Day),
+                      // SizedBox(
+                      //   height: 20,
+                      // ),
                     ])),
                   );
                 }).toList(),

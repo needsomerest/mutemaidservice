@@ -1,19 +1,36 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/component/NotificationList.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/NotificationPage.dart';
 import 'package:mutemaidservice/screen/housekeeper/MenuScreen/ProfileMaidScreen.dart';
 import 'package:mutemaidservice/screen/user/MenuScreen/MenuScreen.dart';
+import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
+
+Stream<int> countDocuments(String userid) {
+  return FirebaseFirestore.instance
+      .collection('Notification')
+      .where('UserID', isEqualTo: userid)
+      .where('Seen', isEqualTo: false)
+      .snapshots()
+      .map((snapshot) => snapshot.size);
+}
 
 class ProfileMaidBar extends StatelessWidget {
-  final User? user = Auth().currentUser;
-  String FirstName;
-  String LastName;
-  String ProfileImg;
-  String HousekeeperID;
+  final Maid maid;
+  bool byuser;
+
   ProfileMaidBar(
-      this.FirstName, this.LastName, this.ProfileImg, this.HousekeeperID);
+      {Key? key,
+      required this.maid,
+      required this.byuser}) //required this.addressData
+      : super(key: key);
+
+  final User? user = Auth().currentUser;
   @override
   Widget build(BuildContext context) => Scaffold(
         // appBar: AppBar(
@@ -39,7 +56,7 @@ class ProfileMaidBar extends StatelessWidget {
                     InkWell(
                       child: Row(
                         // mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             alignment: Alignment.topCenter,
@@ -49,7 +66,7 @@ class ProfileMaidBar extends StatelessWidget {
                             width: 70,
                             child: CircleAvatar(
                               backgroundImage: NetworkImage(
-                                this.ProfileImg,
+                                this.maid.ProfileImage,
                               ),
                               radius: 220,
                             ),
@@ -67,15 +84,15 @@ class ProfileMaidBar extends StatelessWidget {
                               // margin: EdgeInsets.only(top: 15),
                               width: 150,
                               child: Flexible(
-                                child:
-                                    Text("${this.FirstName} ${this.LastName}",
-                                        // user?.displayName ?? 'User',
-                                        style: TextStyle(
-                                          // TextStyle(fontFamily: 'Itim', fontSize: 20),
-                                          color: Colors.white,
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w500,
-                                        )),
+                                child: Text(
+                                    "${this.maid.FirstName} ${this.maid.LastName}",
+                                    // user?.displayName ?? 'User',
+                                    style: TextStyle(
+                                      // TextStyle(fontFamily: 'Itim', fontSize: 20),
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                    )),
                               )),
                           //     ],
                           //   ),
@@ -86,28 +103,45 @@ class ProfileMaidBar extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ProfileMaidScreen()));
+                                builder: (context) => ProfileMaidScreen(
+                                      maid: this.maid,
+                                    )));
                       },
                     ),
-                    InkWell(
-                      child: Container(
-                        // margin: EdgeInsets.only(right: 5),
-                        padding: const EdgeInsets.only(
-                            left: 30, right: 10, bottom: 20),
-                        child: Icon(
-                          Icons.notifications_none,
-                          color: Colors.white,
-                          size: 35,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => NotificationScreen()));
-                        // GetUserData()));
+                    StreamBuilder<int>(
+                      stream: countDocuments(this.maid.HousekeeperID),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return IconButton(
+                            icon: badges.Badge(
+                              badgeContent: Text(
+                                "${snapshot.data}",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              badgeColor: Colors.redAccent,
+                              showBadge: snapshot.data == 0 ? false : true,
+                              child: Icon(
+                                Icons.notifications_none,
+                                color: Colors.white,
+                                size: 35,
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => NotificationList(
+                                          false, this.maid.HousekeeperID)));
+                              // NotificationScreen()));
+
+                              // Handle button press
+                            },
+                          );
+                        } else {
+                          return CircularProgressIndicator();
+                        }
                       },
-                    )
+                    ),
                   ],
                 )),
           ),

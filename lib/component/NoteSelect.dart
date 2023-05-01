@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
@@ -19,21 +20,56 @@ class NoteSelect extends StatefulWidget {
 
 class _MyHomePageState extends State<NoteSelect> {
   // Initial Selected Value
+  List<DocumentSnapshot> documents = [];
 
-  String dropdownvalue = 'เปลี่ยนผ้าคลุมเตียงและปลอกหมอน';
+  List<Map<String, dynamic>> SignList = [];
 
   // List of items in our dropdown menu
-  var items = [
-    'เปลี่ยนผ้าคลุมเตียงและปลอกหมอน',
-    'เก็บหนังสือพิมพ์ไว้ใช้ประโยชน์',
-    'เปลี่ยนที่นอนให้สัตว์เลี้ยง',
-    'ทำความสะอาดห้องนั่งเล่น',
-  ];
+  var items = ["เปลี่ยนที่นอนให้สุนัขและแมว", "ปิดประตู", "ขัดชักโครก"];
+  String dropdownvalue = "เปลี่ยนที่นอนให้สุนัขและแมว";
+
+  Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
+    List<Map<String, dynamic>> data = [];
+
+    QuerySnapshot<Map<String, dynamic>> SignSnapshot = await FirebaseFirestore
+        .instance
+        .collection('SignLanguageVideo')
+        .where('Category', arrayContains: 'User')
+        .get();
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> SignDoc
+        in SignSnapshot.docs) {
+      Map<String, dynamic> docData = SignDoc.data();
+      data.add(docData);
+    }
+
+    return data;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getAddressFromFirebase();
+  }
+
+  Future<void> _getAddressFromFirebase() async {
+    SignList = await getDataFromFirebase();
+    if (mounted) {
+      setState(() {});
+    }
+    // print(dataList);
+  }
+
   @override
   Widget build(BuildContext context) {
-    dropdownvalue = widget.reservationData.Note == ""
-        ? 'เปลี่ยนผ้าคลุมเตียงและปลอกหมอน'
-        : widget.reservationData.Note;
+    if (SignList.isNotEmpty) {
+      items.clear();
+      for (int i = 0; i < SignList.length; i++) {
+        items.add(SignList[i]['Name']);
+      }
+    }
+    widget.reservationData.Note =
+        widget.reservationData.Note == 'Note' ? items[0] : dropdownvalue;
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text("Geeksforgeeks"),
@@ -71,10 +107,12 @@ class _MyHomePageState extends State<NoteSelect> {
                   // After selecting the desired option,it will
                   // change button value to selected value
                   onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownvalue = newValue!;
-                      widget.reservationData.Note = dropdownvalue.toString();
-                    });
+                    if (mounted) {
+                      setState(() {
+                        dropdownvalue = newValue!;
+                        widget.reservationData.Note = dropdownvalue.toString();
+                      });
+                    }
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),
                   // borderRadius: BorderRadius.circular(10),

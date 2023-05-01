@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/VideoCard.dart';
 import 'package:mutemaidservice/component/assetplayer.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/DistanceScreen.dart';
 
 class UserManual extends StatefulWidget {
-  const UserManual({super.key});
+  final Maid maid;
+  UserManual({Key? key, required this.maid});
   // String HousekeeperID;
   // UserManual(this.HousekeeperID);
   @override
@@ -100,7 +102,9 @@ class _UserManualState extends State<UserManual> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => DistanceScreen()));
+                            builder: (context) => DistanceScreen(
+                                  maid: widget.maid,
+                                )));
                   },
                 ),
               )

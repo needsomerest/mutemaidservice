@@ -109,6 +109,7 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
   }
 
   String name = "";
+  bool _ascending = true;
   @override
   Widget build(BuildContext context) {
     // final filteredData = dataList
@@ -117,10 +118,32 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
     //         data['PaymentStatus'].isNotEmpty)
     //     .toList();
 
+    void _sortData(int columnIndex, bool ascending) {
+      setState(() {
+        // print(_sortAscending);
+        if (columnIndex == 1) {
+          // _ascending = !_ascending;
+          if (ascending) {
+            // Sort the data by PaymentStatus in ascending order
+            usersFiltered.sort(
+                (a, b) => a['PaymentStatus'].compareTo(b['PaymentStatus']));
+            dataList.sort(
+                (a, b) => a['PaymentStatus'].compareTo(b['PaymentStatus']));
+          } else {
+            // Sort the data by PaymentStatus in descending order
+            usersFiltered.sort(
+                (a, b) => b['PaymentStatus'].compareTo(a['PaymentStatus']));
+            dataList.sort(
+                (a, b) => b['PaymentStatus'].compareTo(a['PaymentStatus']));
+          }
+        }
+        _ascending = !_ascending;
+      });
+    }
+
     DataTable table = DataTable(
       showCheckboxColumn: false,
       headingRowColor: MaterialStateColor.resolveWith((states) {
-        // Use a color for the heading row based on the current theme
         return HexColor('#C1C1F0');
       }),
       headingTextStyle: TextStyle(
@@ -130,21 +153,41 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
           color: Colors.black),
       border:
           TableBorder.all(borderRadius: BorderRadius.all(Radius.circular(0))),
+      sortColumnIndex: 1,
+      sortAscending: _ascending,
       columns: [
-        DataColumn(label: Text('หมายเลขการจอง')),
-        DataColumn(label: Text('สถานะ')),
+        DataColumn(
+          label: Text('หมายเลขการจอง'),
+        ),
+        DataColumn(
+          label: Text('สถานะ'),
+          onSort: (columnIndex, ascending) {
+            print(_ascending);
+            _sortData(columnIndex, _ascending);
+            // print(_ascending);
+            // if (check == true) {
+            //   _sortData(columnIndex, true);
+            //   setState(() {
+            //     check = false;
+            //   });
+            // } else {
+            //   _sortData(columnIndex, false);
+            //   setState(() {
+            //     check = true;
+            //   });
+            // }
+          },
+        ),
       ],
-      rows: name.isNotEmpty
+      rows: usersFiltered.isNotEmpty
           ? List.generate(
               usersFiltered.length,
               (index) => DataRow(
                 color: MaterialStateColor.resolveWith((states) {
-                  // Use a color for the heading row based on the current theme
                   return HexColor('#EFEFFE');
                 }),
                 onSelectChanged: (isSelected) {
                   if (isSelected == true) {
-                    //data['PaymentStatus'] == "รอตรวจสอบ"
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -163,12 +206,10 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
           : dataList
               .map((data) => DataRow(
                     color: MaterialStateColor.resolveWith((states) {
-                      // Use a color for the heading row based on the current theme
                       return HexColor('#EFEFFE');
                     }),
                     onSelectChanged: (isSelected) {
                       if (isSelected == true) {
-                        //data['PaymentStatus'] == "รอตรวจสอบ"
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -184,7 +225,6 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                   ))
               .toList(),
     );
-
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(

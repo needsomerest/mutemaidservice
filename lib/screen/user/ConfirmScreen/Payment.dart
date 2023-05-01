@@ -162,7 +162,7 @@ class _PaymentState extends State<Payment> {
               Container(
                 width: 300.0,
                 margin: EdgeInsets.only(top: 30, bottom: 30),
-                child: stepbar(7),
+                child: stepbar(5),
               ),
               Container(
                 height: 70,

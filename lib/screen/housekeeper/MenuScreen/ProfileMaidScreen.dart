@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/SettingName.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/RoleScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/MenuScreen/EditScreen.dart';
@@ -15,19 +16,25 @@ import 'package:mutemaidservice/screen/user/MenuScreen/DeleteAccountSuccess.dart
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class ProfileMaidScreen extends StatefulWidget {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  User? get currentUser => _firebaseAuth.currentUser;
-  Stream<User?> get authStateChange => _firebaseAuth.authStateChanges();
-  final User? user = Auth().currentUser;
-  // String HousekeeperID;
-  // ProfileMaidScreen(this.HousekeeperID);
+  final Maid maid;
+  ProfileMaidScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
 
   @override
   State<ProfileMaidScreen> createState() => _ProfileMaidScreenState();
 }
 
+late Maid finalmaid;
+
 class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
+  @override
+  void initState() {
+    setState(() {
+      finalmaid = widget.maid;
+    });
+  }
+
+  // final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +66,7 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.user?.displayName ?? 'User',
+                        "${widget.maid.FirstName} ${widget.maid.LastName}",
                         style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,
@@ -70,7 +77,9 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => EditScreen()));
+                                  builder: (context) => EditScreen(
+                                        maid: widget.maid,
+                                      )));
                         },
                         child: Text(
                           'แก้ไขโปรไฟล์',
@@ -83,17 +92,18 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                     ],
                   ),
                   Container(
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: Image.asset(
-                      "assets/images/profile.png",
-                      width: 70,
-                      height: 70,
+                    margin: EdgeInsets.only(right: 10),
+                    height: 60,
+                    width: 60,
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(widget.maid.ProfileImage),
+                      radius: 220,
                     ),
                   ),
                 ],
               ),
               Container(
-                  // margin: EdgeInsets.only(top: 30),
+                  margin: EdgeInsets.only(top: 20),
                   height: 800,
                   decoration: BoxDecoration(
                       color: HexColor('#FFFFFF'),
@@ -128,7 +138,9 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ReviewScreen()));
+                                    builder: (context) => ReviewScreen(
+                                          maid: widget.maid,
+                                        )));
                           },
                         ),
 
@@ -149,7 +161,9 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => MyMoneyScreen()));
+                                    builder: (context) => MyMoneyScreen(
+                                          maid: widget.maid,
+                                        )));
                           },
                         ),
 
@@ -201,8 +215,8 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                                   Icons.logout, "ออกจากระบบ", Colors.white),
                               //onPressed: SignOut,
                             ),
-                            onTap: () async {
-                              await FirebaseAuth.instance.signOut();
+                            onTap: () {
+                              // await FirebaseAuth.instance.signOut();
 
                               Navigator.push(
                                   context,
@@ -226,7 +240,7 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
 }
 
 _onAlertButtonPressed(BuildContext context) {
-  final User? user = Auth().currentUser;
+  // final User? user = Auth().currentUser;
   Alert(
     context: context,
     type: AlertType.warning,
@@ -271,7 +285,7 @@ _onAlertButtonPressed(BuildContext context) {
 }
 
 _onAlertButtonPressedMaid(BuildContext context) {
-  final User? user = Auth().currentUser;
+  // final User? user = Auth().currentUser;
   Alert(
     context: context,
     type: AlertType.warning,
@@ -352,14 +366,10 @@ _onAlertButtonPressedMaid(BuildContext context) {
 // }
 
 Future deleteData() async {
-  final User? user = Auth().currentUser;
-  String userid = user.toString();
-
   try {
-    user?.delete();
     await FirebaseFirestore.instance
-        .collection("User")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Housekeeper")
+        .doc(finalmaid.HousekeeperID)
         .delete();
 
     print("sucess");

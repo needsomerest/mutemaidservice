@@ -75,7 +75,7 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                 Container(
                   width: 300.0,
                   margin: EdgeInsets.only(top: 30, bottom: 30),
-                  child: stepbar(6),
+                  child: stepbar(4),
                 ),
                 Text(
                   'รายละเอียดการจอง',

@@ -6,13 +6,16 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:mutemaidservice/model/Data/NotificationData.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/ChatScreen/ChatMaidScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../HomeScreen/HomeMaidScreen.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+  final Maid maid;
+  ScheduleScreen({Key? key, required this.maid}) : super(key: key);
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
@@ -21,6 +24,9 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   late String userId;
   late String BookingId;
+  late String Package;
+  late String DateTimeService;
+  late String Status;
 
   Future<void> updateReserve({
     required String status,
@@ -42,7 +48,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Future UpdateReservationDetail(String DateTimePackage, String Package,
       String UserID, String BookingID) async {
-    if (Package == "รายครั้ง") {
+    if (Package == "รายครั้ง" || Package == "ครั้งเดียว") {
       await FirebaseFirestore.instance
           .collection("User")
           .doc(UserID)
@@ -73,16 +79,28 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
+  Future Notification_JobDone(String userid, String bookingid) async {
+    NotificationData notificationData = NotificationData(
+        userid,
+        bookingid,
+        "หนังสือการจองหมายเลข ${bookingid} ผู้ให้บริการได้ทำงานที่ได้รับมอบหมายในวันนี้เสร็จสิ้นแล้ว",
+        "การความสะอาดเสร็จสิ้นแล้ว");
+    await FirebaseFirestore.instance
+        .collection("Notification")
+        .doc()
+        .set(notificationData.CreateNotificationtoJson());
+  }
+
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDate;
   String? Date;
+  String status = '';
 
   Map<String, List> mySelectedEvents = {};
 
   Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
     List<Map<String, dynamic>> data = [];
-    final HousekeeperID = "9U9xNdySRx475ByRhjBw";
     await initializeDateFormatting('th_TH', null);
     QuerySnapshot<Map<String, dynamic>> UserSnapshot =
         await FirebaseFirestore.instance.collection('User').get();
@@ -95,7 +113,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               .collection("User")
               .doc(UserDoc.id)
               .collection('Reservation')
-              .where('HousekeeperID', isEqualTo: HousekeeperID)
+              .where('HousekeeperID', isEqualTo: widget.maid.HousekeeperID)
               .where('HousekeeperRequest', isEqualTo: "รับงาน")
               .get();
 
@@ -272,6 +290,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               "UserID": dataList[i]['UserID'],
               "Package": dataList[i]['Package'],
               "DateTimeService": dataList[i]['DatetimeService'],
+              "Status": dataList[i]['Status'],
             });
           } else {
             mySelectedEvents[
@@ -283,6 +302,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 "UserID": dataList[i]['UserID'],
                 "Package": dataList[i]['Package'],
                 "DateTimeService": dataList[i]['DatetimeService'],
+                "Status": dataList[i]['Status'],
               }
             ];
           }
@@ -304,6 +324,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 "UserID": dataList[i]['UserID'],
                 "Package": dataList[i]['Package'],
                 "DateTimeService": dataList[i]['DatetimeService'],
+                "Status": dataList[i]['Status'],
               });
             } else {
               mySelectedEvents[
@@ -315,6 +336,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   "UserID": dataList[i]['UserID'],
                   "Package": dataList[i]['Package'],
                   "DateTimeService": dataList[i]['DatetimeService'],
+                  "Status": dataList[i]['Status'],
                 }
               ];
             }
@@ -336,6 +358,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 "UserID": dataList[i]['UserID'],
                 "Package": dataList[i]['Package'],
                 "DateTimeService": dataList[i]['DatetimeService'],
+                "Status": dataList[i]['Status'],
               });
             } else {
               mySelectedEvents[
@@ -347,6 +370,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   "UserID": dataList[i]['UserID'],
                   "Package": dataList[i]['Package'],
                   "DateTimeService": dataList[i]['DatetimeService'],
+                  "Status": dataList[i]['Status'],
                 }
               ];
             }
@@ -355,6 +379,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         if (dataList[i]['Package'] == "รายวัน") {
           for (int j = 0; j < 365; j++) {
             final DateTime eventmonth = dataList[i]['Date'];
+
             final eventmonthFirst =
                 DateTime(eventmonth.year, eventmonth.month, eventmonth.day + j);
             if (mySelectedEvents[
@@ -368,6 +393,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 "UserID": dataList[i]['UserID'],
                 "Package": dataList[i]['Package'],
                 "DateTimeService": dataList[i]['DatetimeService'],
+                "Status": dataList[i]['Status'],
               });
             } else {
               mySelectedEvents[
@@ -379,6 +405,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   "UserID": dataList[i]['UserID'],
                   "Package": dataList[i]['Package'],
                   "DateTimeService": dataList[i]['DatetimeService'],
+                  "Status": dataList[i]['Status'],
                 }
               ];
             }
@@ -401,9 +428,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     initializeDateFormatting('th');
     int _selectedIndex = 1;
     final screens = [
-      HomeMaidScreen(),
-      ScheduleScreen(),
-      ChatMaidScreen(),
+      HomeMaidScreen(maid: widget.maid),
+      ScheduleScreen(maid: widget.maid),
+      ChatMaidScreen(
+        maid: widget.maid,
+      ),
     ];
     final kToday = DateTime.now();
     final kFirstDay = DateTime(kToday.year, kToday.month - 6, kToday.day);
@@ -551,7 +580,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                   fontWeight: FontWeight.bold,
                                                   color: HexColor('#949191'))),
                                         ],
-                                      )
+                                      ),
                                     ],
                                   ),
                                   Container(
@@ -569,6 +598,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     JobDetailScreen(
+                                                        widget.maid,
                                                         myEvents['ReserveID'],
                                                         true,
                                                         DateFormat.yMMMMd(
@@ -598,85 +628,103 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    TextButton(
-                                      child: Icon(
-                                        Icons.work_history,
-                                        size: 40,
-                                        color: HexColor('#5D5FEF'),
+                                    if (myEvents['Status'] == "กำลังมาถึง" ||
+                                        myEvents['Status'] ==
+                                            "กำลังดำเนินการ") ...[
+                                      TextButton(
+                                        child: Icon(
+                                          Icons.work_history,
+                                          size: 40,
+                                          color: HexColor('#5D5FEF'),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            userId = myEvents['UserID'];
+                                            BookingId = myEvents['ReserveID'];
+                                            Package = myEvents['Package'];
+                                            Status = myEvents['Status'];
+                                            DateTimeService =
+                                                myEvents['DateTimeService'];
+                                          });
+                                          updateReserve(
+                                            status: 'กำลังดำเนินการ',
+                                          ).then((value) {
+                                            print('Maid updated successfully!');
+                                          }).catchError((error) {
+                                            print(
+                                                'Error updating Maid: $error');
+                                          });
+                                        },
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          userId = myEvents['UserID'];
-                                          BookingId = myEvents['ReserveID'];
-                                        });
-                                        updateReserve(
-                                          status: 'กำลังดำเนินการ',
-                                        ).then((value) {
-                                          print('Maid updated successfully!');
-                                        }).catchError((error) {
-                                          print('Error updating Maid: $error');
-                                        });
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Icon(
-                                        Icons.check_circle_outline,
-                                        size: 40,
-                                        color: Colors.green,
+                                      TextButton(
+                                        child: Icon(
+                                          Icons.check_circle_outline,
+                                          size: 40,
+                                          color: Colors.green,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            userId = myEvents['UserID'];
+                                            BookingId = myEvents['ReserveID'];
+                                            Package = myEvents['Package'];
+                                            Status = myEvents['Status'];
+                                            DateTimeService =
+                                                myEvents['DateTimeService'];
+                                            String DateTimePackage = '';
+
+                                            DateTime dateTime = DateFormat(
+                                                    'dd MMMM ค.ศ. yyyy', 'th')
+                                                .parse(myEvents[
+                                                    'DateTimeService']);
+
+                                            if (Package == "รายเดือน") {
+                                              DateTime nextMonth = DateTime(
+                                                  dateTime.year,
+                                                  dateTime.month + 1,
+                                                  dateTime.day);
+                                              DateTimePackage = DateFormat(
+                                                      'dd MMMM ค.ศ. yyyy', 'th')
+                                                  .format(nextMonth);
+                                            }
+
+                                            if (Package == "รายสัปดาห์") {
+                                              DateTime nextWeek = DateTime(
+                                                  dateTime.year,
+                                                  dateTime.month,
+                                                  dateTime.day + 7);
+                                              DateTimePackage = DateFormat(
+                                                      'dd MMMM ค.ศ. yyyy', 'th')
+                                                  .format(nextWeek);
+                                            }
+
+                                            if (Package == "รายวัน") {
+                                              DateTime nextDay = DateTime(
+                                                  dateTime.year,
+                                                  dateTime.month,
+                                                  dateTime.day + 1);
+                                              DateTimePackage = DateFormat(
+                                                      'dd MMMM ค.ศ. yyyy', 'th')
+                                                  .format(nextDay);
+                                            }
+                                            ;
+                                            UpdateReservationDetail(
+                                                DateTimePackage,
+                                                Package,
+                                                userId,
+                                                BookingId);
+                                            Notification_JobDone(
+                                                userId, BookingId);
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      HomeMaidScreen(
+                                                          maid: widget.maid),
+                                                ));
+                                          });
+                                        },
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          userId = myEvents['UserID'];
-                                          BookingId = myEvents['ReserveID'];
-                                        });
-                                        String DateTimePackage = '';
-                                        DateTime dateTime = DateFormat(
-                                                'dd MMMM ค.ศ. yyyy', 'th')
-                                            .parse(myEvents['DateTimeService']);
-
-                                        if (myEvents['Package'] == "รายเดือน") {
-                                          DateTime nextMonth = DateTime(
-                                              dateTime.year,
-                                              dateTime.month + 1,
-                                              dateTime.day);
-                                          DateTimePackage = DateFormat(
-                                                  'dd MMMM ค.ศ. yyyy', 'th')
-                                              .format(nextMonth);
-                                        }
-
-                                        if (myEvents['Package'] ==
-                                            "รายสัปดาห์") {
-                                          DateTime nextWeek = DateTime(
-                                              dateTime.year,
-                                              dateTime.month,
-                                              dateTime.day + 7);
-                                          DateTimePackage = DateFormat(
-                                                  'dd MMMM ค.ศ. yyyy', 'th')
-                                              .format(nextWeek);
-                                        }
-
-                                        if (myEvents['Package'] == "รายวัน") {
-                                          DateTime nextDay = DateTime(
-                                              dateTime.year,
-                                              dateTime.month,
-                                              dateTime.day + 1);
-                                          DateTimePackage = DateFormat(
-                                                  'dd MMMM ค.ศ. yyyy', 'th')
-                                              .format(nextDay);
-                                        }
-                                        ;
-                                        UpdateReservationDetail(
-                                            DateTimePackage,
-                                            myEvents['Package'],
-                                            UserID,
-                                            myEvents['ReserveID']);
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HomeMaidScreen()));
-                                      },
-                                    ),
+                                    ]
                                   ],
                                 ),
                               )

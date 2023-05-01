@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:mutemaidservice/component/BottomNavbar.dart';
 import 'package:mutemaidservice/component/ProfilemaidBar.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/ChatScreen/ChatMaidScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/ChatScreen/chatpage.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/UserManual.dart';
@@ -18,18 +18,14 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import '../ScheduleScreen/ScheduleScreen.dart';
 
 class HomeMaidScreen extends StatefulWidget {
-  // HomeMaidScreen(String housekeeperID);
-
-  const HomeMaidScreen({super.key});
-  // final User? user = Auth().currentUser;
-  // String HousekeeperID;
-  // HomeMaidScreen(this.HousekeeperID);
+  final Maid maid;
+  HomeMaidScreen({Key? key, required this.maid}) //required this.addressData
+      : super(key: key);
   @override
   State<HomeMaidScreen> createState() => _HomeMaidScreenState();
 }
 
 class _HomeMaidScreenState extends State<HomeMaidScreen> {
-  final HousekeeperID = "9U9xNdySRx475ByRhjBw";
   Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
     List<Map<String, dynamic>> data = [];
 
@@ -37,13 +33,13 @@ class _HomeMaidScreenState extends State<HomeMaidScreen> {
     DocumentSnapshot<Map<String, dynamic>> HousekeeperSnapshot =
         await FirebaseFirestore.instance
             .collection('Housekeeper')
-            .doc(HousekeeperID)
+            .doc(widget.maid.HousekeeperID)
             .get();
     Map<String, dynamic> HousekeeperData = HousekeeperSnapshot.data()!;
     data.add(HousekeeperData);
 
     print(
-        'Number of User documents with Reservation ${HousekeeperID}: ${HousekeeperSnapshot.data()}');
+        'Number of User documents with Reservation ${widget.maid.HousekeeperID}: ${HousekeeperSnapshot.data()}');
 
     // DocumentSnapshot<Map<String, dynamic>> reservationSnapshot =
     //     await userSnapshot.reference
@@ -104,9 +100,11 @@ class _HomeMaidScreenState extends State<HomeMaidScreen> {
   Widget build(BuildContext context) {
     int _selectedIndex = 0;
     final screens = [
-      HomeMaidScreen(),
-      ScheduleScreen(),
-      ChatMaidScreen(),
+      HomeMaidScreen(maid: widget.maid),
+      ScheduleScreen(maid: widget.maid),
+      ChatMaidScreen(
+        maid: widget.maid,
+      ),
       // ChatMaidScreen(),
     ];
     return Scaffold(
@@ -123,10 +121,8 @@ class _HomeMaidScreenState extends State<HomeMaidScreen> {
                 Container(
                   height: 200,
                   child: ProfileMaidBar(
-                    dataList[0]['FirstName'].toString(),
-                    dataList[0]["LastName"].toString(),
-                    dataList[0]["profileImage"].toString(),
-                    dataList[0]['HousekeeperID'].toString(),
+                    maid: widget.maid,
+                    byuser: false,
                   ),
                 ),
                 Container(
@@ -200,7 +196,9 @@ class _HomeMaidScreenState extends State<HomeMaidScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => UserManual()));
+                              builder: (context) => UserManual(
+                                    maid: widget.maid,
+                                  )));
                     },
                   ),
                 ),

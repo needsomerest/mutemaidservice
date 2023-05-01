@@ -23,34 +23,35 @@ class MyBooking extends StatefulWidget {
 
 class _MyBookingState extends State<MyBooking> {
   final newReservationData = new ReservationData(
-      "",
-      "",
-      DateFormat('yyyy-MM-dd').format(DateTime.now()).toString(),
-      "14:30",
-      "",
-      "2 ชม. แนะนำ",
-      Duration(
-        hours: 0,
-      ),
-      "ครั้งเดียว",
-      "เปลี่ยนผ้าคลุมเตียงและปลอกหมอน",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "ไม่มี",
-      "",
-      GeoPoint(0.0, 0.0),
-      "",
-      "",
-      "",
-      "กำลังตรวจสอบ",
-      true,
-      "",);
+    "",
+    "",
+    DateFormat('yyyy-MM-dd').format(DateTime.now()).toString(),
+    "14:30",
+    "",
+    "2 ชม. แนะนำ",
+    Duration(
+      hours: 0,
+    ),
+    "ครั้งเดียว",
+    "เปลี่ยนผ้าคลุมเตียงและปลอกหมอน",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "ไม่มี",
+    "",
+    GeoPoint(0.0, 0.0),
+    "",
+    "",
+    "",
+    "กำลังตรวจสอบ",
+    true,
+    "",
+  );
 
   final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
       "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
@@ -104,10 +105,13 @@ class _MyBookingState extends State<MyBooking> {
             text: 'กำลังมาถึง',
           ),
           Tab(
+            text: 'ดำเนินการ',
+          ),
+          Tab(
             text: 'เสร็จสิ้น',
           ),
           Tab(
-            text: 'ประวัติการจอง',
+            text: 'ประวัติ',
           ),
         ],
       );
@@ -118,7 +122,7 @@ class _MyBookingState extends State<MyBooking> {
 
     return DefaultTabController(
       initialIndex: 1,
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           elevation: 0.0,
@@ -147,6 +151,10 @@ class _MyBookingState extends State<MyBooking> {
             MyBookingList(
               UserID: UserID.toString(),
               TabStatus: 'กำลังมาถึง',
+            ),
+            MyBookingList(
+              UserID: UserID.toString(),
+              TabStatus: 'กำลังดำเนินการ',
             ),
             MyBookingList(
               UserID: UserID.toString(),

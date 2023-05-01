@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/StarButton.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 
 class CardReview extends StatefulWidget {
-  const CardReview({super.key});
+  final Maid maid;
+  CardReview({Key? key, required this.maid}) : super(key: key);
 
   @override
   State<CardReview> createState() => _CardReviewState();
@@ -19,7 +19,7 @@ class _CardReviewState extends State<CardReview> {
     QuerySnapshot<Map<String, dynamic>> ReviewSnapshot = await FirebaseFirestore
         .instance
         .collection("Housekeeper")
-        .doc('9U9xNdySRx475ByRhjBw')
+        .doc(widget.maid.HousekeeperID)
         .collection('Review')
         .get();
 
@@ -55,12 +55,8 @@ class _CardReviewState extends State<CardReview> {
 
   Future<void> _getDataFromFirebase() async {
     dataList = await getDataFromFirebase();
-    setState(() {
-      // price = dataList[0]['Money'] +
-      //     (dataList[2]['PaymentPrice'] * 70 / 100).round();
-    });
+    setState(() {});
     print(dataList);
-    // print(dataList);
   }
 
   @override
@@ -79,7 +75,6 @@ class _CardReviewState extends State<CardReview> {
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            // mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Container(
                 margin: EdgeInsets.only(right: 20),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocode/geocode.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/FavMaidList.dart';
@@ -17,13 +18,17 @@ class MaidScreen extends StatefulWidget {
   // const MaidScreen({super.key});
   final ReservationData reservationData;
   final Housekeeper housekeeper;
+  final AddressData addressData;
   final String Reservation_Day;
+  final int distance;
 
   MaidScreen(
       {Key? key,
       required this.reservationData,
       required this.housekeeper,
-      required this.Reservation_Day})
+      required this.Reservation_Day,
+      required this.addressData,
+      required this.distance})
       : super(key: key);
 
   bool fav = false;
@@ -33,12 +38,8 @@ class MaidScreen extends StatefulWidget {
 }
 
 class _MaidScreenState extends State<MaidScreen> {
-  final User? user = Auth().currentUser;
-
   @override
   Widget build(BuildContext context) {
-    final _uid = user?.uid;
-
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
@@ -79,7 +80,7 @@ class _MaidScreenState extends State<MaidScreen> {
               Container(
                 width: 300.0,
                 margin: EdgeInsets.only(top: 30),
-                child: stepbar(5),
+                child: stepbar(3),
               ),
               Container(
                 margin: EdgeInsets.only(left: 30, right: 30, top: 30),
@@ -182,22 +183,25 @@ class _MaidScreenState extends State<MaidScreen> {
                 Container(
                   height: 620,
                   child: MaidList(
-                      booked: false,
-                      userID: _uid.toString(),
-                      reservationData: widget.reservationData,
-                      housekeeper: widget.housekeeper,
-                      Reservation_Day: '-'),
+                    booked: false,
+                    reservationData: widget.reservationData,
+                    housekeeper: widget.housekeeper,
+                    addressData: widget.addressData,
+                    Reservation_Day: widget.Reservation_Day,
+                    distance: widget.distance,
+                  ),
                 )
               ] else ...[
                 Container(
                   height: 620,
                   child: FavMaidList(
                     booked: false,
-                    userID: _uid.toString(),
                     reservationData: widget.reservationData,
                     callby: 'book',
+                    addressData: widget.addressData,
                     housekeeper: widget.housekeeper,
-                    Reservation_Day: '-',
+                    Reservation_Day: widget.Reservation_Day,
+                    distance: widget.distance,
                   ),
                 ),
               ]
