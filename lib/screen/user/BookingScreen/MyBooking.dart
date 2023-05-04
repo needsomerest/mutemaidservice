@@ -125,6 +125,7 @@ class _MyBookingState extends State<MyBooking> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,

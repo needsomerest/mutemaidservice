@@ -170,12 +170,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future uploadFile() async {
     if (_photo == null) return;
     final fileName = basename(_photo!.path);
-    final destination = 'AddressImage/$fileName';
+    final destination = 'UserImage/$fileName';
 
     try {
       final ref = firebase_storage.FirebaseStorage.instance
           .ref(destination)
-          .child('AddressImage/');
+          .child('UserImage/');
       await ref.putFile(_photo!);
       imageurl = await ref.getDownloadURL();
     } catch (e) {

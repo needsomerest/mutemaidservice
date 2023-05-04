@@ -7,6 +7,7 @@ import 'package:mutemaidservice/component/CalculateDistance.dart';
 import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/LocationMaid.dart';
+import 'package:mutemaidservice/screen/housekeeper/HomeScreen/UserManual.dart';
 import 'package:mutemaidservice/screen/user/PlaceScreen/map.dart';
 
 class DistanceScreen extends StatefulWidget {
@@ -43,10 +44,20 @@ class _DistanceScreenState extends State<DistanceScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserManual(
+                          maid: widget.maid,
+                        )));
+          },
         ),
         title: Text('กรองระยะทาง',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

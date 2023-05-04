@@ -100,6 +100,7 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
     super.initState();
     _getDataFromFirebase();
     usersFiltered = dataList;
+    // usersFiltered.addAll(dataList);
   }
 
   Future<void> _getDataFromFirebase() async {
@@ -112,12 +113,6 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
   bool _ascending = true;
   @override
   Widget build(BuildContext context) {
-    // final filteredData = dataList
-    //     .where((data) =>
-    //         data['ReservationId'].isNotEmpty &&
-    //         data['PaymentStatus'].isNotEmpty)
-    //     .toList();
-
     void _sortData(int columnIndex, bool ascending) {
       setState(() {
         // print(_sortAscending);
@@ -225,16 +220,90 @@ class _PaymentListScreenState extends State<PaymentListScreen> {
                   ))
               .toList(),
     );
+    // DataTable table = DataTable(
+    //   showCheckboxColumn: false,
+    //   headingRowColor: MaterialStateColor.resolveWith((states) {
+    //     // Use a color for the heading row based on the current theme
+    //     return HexColor('#C1C1F0');
+    //   }),
+    //   headingTextStyle: TextStyle(
+    //       fontSize: 16,
+    //       fontWeight: FontWeight.bold,
+    //       fontFamily: 'Kanit',
+    //       color: Colors.black),
+    //   border:
+    //       TableBorder.all(borderRadius: BorderRadius.all(Radius.circular(0))),
+    //   columns: [
+    //     DataColumn(label: Text('หมายเลขการจอง')),
+    //     DataColumn(label: Text('สถานะ')),
+    //   ],
+    //   rows: name.isNotEmpty
+    //       ? List.generate(
+    //           usersFiltered.length,
+    //           (index) => DataRow(
+    //             color: MaterialStateColor.resolveWith((states) {
+    //               // Use a color for the heading row based on the current theme
+    //               return HexColor('#EFEFFE');
+    //             }),
+    //             onSelectChanged: (isSelected) {
+    //               if (isSelected == true) {
+    //                 //data['PaymentStatus'] == "รอตรวจสอบ"
+    //                 Navigator.push(
+    //                   context,
+    //                   MaterialPageRoute(
+    //                     builder: (context) => PaymentDetailScreen(
+    //                         usersFiltered[index]['ReservationId']),
+    //                   ),
+    //                 );
+    //               }
+    //             },
+    //             cells: [
+    //               DataCell(Text(usersFiltered[index]['ReservationId'])),
+    //               DataCell(Text(usersFiltered[index]['PaymentStatus'])),
+    //             ],
+    //           ),
+    //         )
+    //       : dataList
+    //           .map((data) => DataRow(
+    //                 color: MaterialStateColor.resolveWith((states) {
+    //                   // Use a color for the heading row based on the current theme
+    //                   return HexColor('#EFEFFE');
+    //                 }),
+    //                 onSelectChanged: (isSelected) {
+    //                   if (isSelected == true) {
+    //                     //data['PaymentStatus'] == "รอตรวจสอบ"
+    //                     Navigator.push(
+    //                       context,
+    //                       MaterialPageRoute(
+    //                           builder: (context) =>
+    //                               PaymentDetailScreen(data['ReservationId'])),
+    //                     );
+    //                   }
+    //                 },
+    //                 cells: [
+    //                   DataCell(Text(data['ReservationId'])),
+    //                   DataCell(Text(data['PaymentStatus'])),
+    //                 ],
+    //               ))
+    //           .toList(),
+    // );
+
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => HomeAdminScreen()));
+          },
         ),
         title: Text('ตรวจสอบการชำระเงิน',
             style: TextStyle(

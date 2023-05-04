@@ -1,33 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/InfoAddress.dart';
 import 'package:mutemaidservice/component/InfoBooking.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/PaymentData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/user/BookingScreen/CancelBookingSuccess.dart';
+import 'package:mutemaidservice/screen/user/BookingScreen/MyBooking.dart';
 import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmPayment.dart';
+import 'package:mutemaidservice/screen/user/MaidScreen/MaidScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class ConfirmInfo extends StatefulWidget {
   final ReservationData reservationData;
   final Housekeeper housekeeper;
+  final AddressData addressdata;
   bool booked;
-  bool callby;
+  bool button_cancel;
+  String Reservation_Day;
+  int maxdistance;
+
   ConfirmInfo(
       {Key? key,
       required this.booked,
       required this.housekeeper,
       required this.reservationData,
-      required this.callby})
+      required this.button_cancel,
+      required this.addressdata,
+      required this.Reservation_Day,
+      required this.maxdistance})
       : super(key: key);
   // const ConfirmInfo({super.key});
 
@@ -52,10 +58,29 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            if (widget.booked == true) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyBooking()));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MaidScreen(
+                            reservationData: widget.reservationData,
+                            housekeeper: widget.housekeeper,
+                            Reservation_Day: widget.Reservation_Day,
+                            addressData: widget.addressdata,
+                            maxdistance: widget.maxdistance,
+                          )));
+            }
+          },
         ),
         title: Text(
             widget.booked == false ? 'ยืนยันและชำระเงิน' : 'รายละเอียดการจอง',
@@ -136,11 +161,16 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                                     paymentdata: paymentData,
                                     reservationData: widget.reservationData,
                                     callby: true,
+                                    Reservation_Day: widget.Reservation_Day,
+                                    addressdata: widget.addressdata,
+                                    housekeeper: widget.housekeeper,
+                                    maxdistance: widget.maxdistance,
                                   )));
                     },
                   ),
                 )
-              ] else if (widget.booked == true && widget.callby == false) ...[
+              ] else if (widget.booked == true &&
+                  widget.button_cancel == false) ...[
                 // InkWell(
                 // child:
 

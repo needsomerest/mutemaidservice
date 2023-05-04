@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math' show cos, sqrt, asin;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -10,6 +11,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
+import 'package:mutemaidservice/screen/housekeeper/HomeScreen/LocationMaid.dart';
 
 class JobScreen extends StatefulWidget {
   final Maid maid;
@@ -158,10 +160,20 @@ class _JobScreenState extends State<JobScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LocationMaid(
+                          maid: widget.maid,
+                        )));
+          },
         ),
         title: Text('งานทั้งหมด',
             style: TextStyle(

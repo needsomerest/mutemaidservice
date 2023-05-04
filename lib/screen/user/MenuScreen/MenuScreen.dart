@@ -2,22 +2,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
-import 'package:mutemaidservice/component/FavMaidlist.dart';
 import 'package:mutemaidservice/component/SettingName.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/HomeScreen.dart';
 import 'package:mutemaidservice/screen/RoleScreen.dart';
 import 'package:mutemaidservice/screen/user/MenuScreen/DeleteAccountSuccess.dart';
 import 'package:mutemaidservice/screen/user/UserScreen/EditProfileScreen.dart';
-import 'package:mutemaidservice/screen/user/UserScreen/IndexScreen.dart';
 import 'ContactScreen.dart';
 import '../PlaceScreen/MyplaceScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'FavoriteScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileScreen extends StatelessWidget {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -81,10 +80,16 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          },
         ),
         title: Text('โปรไฟล์',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -205,8 +210,7 @@ class ProfileScreen extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        MyfavoriteScreen(userID: uid)));
+                                    builder: (context) => MyfavoriteScreen()));
                           },
                         ),
 
@@ -235,10 +239,15 @@ class ProfileScreen extends StatelessWidget {
                                 Icons.headset_mic, "ติดต่อเรา", Colors.white),
                           ),
                           onTap: () {
+                            final maid = new Maid("HousekeeperID", "FirstName",
+                                "LastName", "ProfileImage");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ContactScreen()));
+                                    builder: (context) => ContactScreen(
+                                          callbyuser: true,
+                                          maid: maid,
+                                        )));
                           },
                         ),
 

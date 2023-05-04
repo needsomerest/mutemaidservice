@@ -8,6 +8,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:mutemaidservice/screen/admin/HomeScreen/HomeScreen.dart';
+import 'package:mutemaidservice/screen/admin/HomeScreen/PaymentDetailScreen.dart';
 import 'package:mutemaidservice/screen/admin/HomeScreen/PaymentListScreen.dart';
 import 'package:mutemaidservice/screen/admin/HomeScreen/SuccessPayment.dart';
 import 'dart:io';
@@ -45,7 +46,6 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
         'PaymentStatus': status,
         'PaymentMaidImage': paymentimage,
       });
-
       print("Update User success");
     } catch (e) {
       print("Error updating User: $e");
@@ -54,8 +54,8 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
 
   Future<void> addHistoryMoney({
     required String bookingid,
-    required double money,
-    required double income,
+    required int money,
+    required int income,
     required DateTime time,
   }) async {
     try {
@@ -76,7 +76,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
   }
 
   Future<void> updateMoney({
-    required double money,
+    required int money,
   }) async {
     try {
       final docMoney = await FirebaseFirestore.instance
@@ -164,7 +164,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
   //   return data;
   // }
 
-  late double price;
+  late int price;
   List<Map<String, dynamic>> datamaidList = [];
 
   @override
@@ -282,10 +282,18 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading: Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PaymentDetailScreen(Paymentid)));
+            },
           ),
           title: Text('รายละเอียดการชำระเงิน',
               style: TextStyle(
@@ -457,14 +465,17 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
                             ),
                             onPressed: () {
                               print(widget.dataList[2]['PaymentStatus']);
-                              int money = datamaidList[0]['Money'] ?? 0.0;
-                              double paymentPrice =
-                                  widget.dataList[2]['PaymentPrice'] ?? 0.0;
+                              // int total;
+                              // int money;
                               if (widget.dataList[2]['PaymentStatus'] ==
                                   "กำลังตรวจสอบ") {
+                                double money = datamaidList[0]['Money'] ?? 0;
+                                print(money);
+                                double paymentPrice =
+                                    widget.dataList[2]['PaymentPrice'] ?? 0;
                                 setState(() {
-                                  price = money.toDouble() +
-                                      (paymentPrice * 70 / 100).round();
+                                  price = (money.round() +
+                                      (paymentPrice * 70 / 100).round());
                                 });
                                 // setState(() {
                                 //   money=dataList[0]['Money'];
@@ -475,7 +486,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
                                   bookingid: widget.dataList[2]
                                       ['ReservationId'],
                                   money: price,
-                                  income: (paymentPrice * 70 / 100),
+                                  income: (paymentPrice * 70 / 100).round(),
                                   time: DateTime.now(),
                                 ).then((value) {
                                   print('Money updated successfully!');

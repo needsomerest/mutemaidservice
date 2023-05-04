@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/contact.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
+import 'package:mutemaidservice/screen/housekeeper/MenuScreen/ProfileMaidScreen.dart';
+import 'package:mutemaidservice/screen/user/MenuScreen/MenuScreen.dart';
 // import 'HomeScreen.dart';
 
 class ContactScreen extends StatelessWidget {
-  const ContactScreen({super.key});
+  bool callbyuser;
+  Maid maid;
+  ContactScreen({required this.callbyuser, required this.maid});
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +19,23 @@ class ContactScreen extends StatelessWidget {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            if (callbyuser == true) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProfileMaidScreen(maid: maid)));
+            }
+          },
         ),
         title: Text('ติดต่อเรา',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

@@ -13,6 +13,7 @@ import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/user/BookingScreen/BookingDistance.dart';
 
 class MaidScreen extends StatefulWidget {
   // const MaidScreen({super.key});
@@ -20,7 +21,7 @@ class MaidScreen extends StatefulWidget {
   final Housekeeper housekeeper;
   final AddressData addressData;
   final String Reservation_Day;
-  final int distance;
+  final int maxdistance;
 
   MaidScreen(
       {Key? key,
@@ -28,7 +29,7 @@ class MaidScreen extends StatefulWidget {
       required this.housekeeper,
       required this.Reservation_Day,
       required this.addressData,
-      required this.distance})
+      required this.maxdistance})
       : super(key: key);
 
   bool fav = false;
@@ -38,6 +39,7 @@ class MaidScreen extends StatefulWidget {
 }
 
 class _MaidScreenState extends State<MaidScreen> {
+  final User? user = Auth().currentUser;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,22 +48,23 @@ class _MaidScreenState extends State<MaidScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading:
-            // GestureDetector(
-            //   onTap: () {
-            //     Navigator.push(
-            //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-            //   }, child:
-            Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BookingDistanceScreen(
+                        reservationData: widget.reservationData,
+                        housekeeper: widget.housekeeper,
+                        Reservation_Day: widget.Reservation_Day,
+                        addressData: widget.addressData)));
+          },
         ),
-        // ),
-        //  Icon(
-        //     Icons.keyboard_backspace,
-        //     color: Colors.white,
-        //   ),
         title: Text('เลือกแม่บ้านด้วยตนเอง',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       ),
@@ -185,10 +188,9 @@ class _MaidScreenState extends State<MaidScreen> {
                   child: MaidList(
                     booked: false,
                     reservationData: widget.reservationData,
-                    housekeeper: widget.housekeeper,
                     addressData: widget.addressData,
                     Reservation_Day: widget.Reservation_Day,
-                    distance: widget.distance,
+                    maxdistance: widget.maxdistance,
                   ),
                 )
               ] else ...[
@@ -197,11 +199,10 @@ class _MaidScreenState extends State<MaidScreen> {
                   child: FavMaidList(
                     booked: false,
                     reservationData: widget.reservationData,
-                    callby: 'book',
+                    callbymenu: false,
                     addressData: widget.addressData,
-                    housekeeper: widget.housekeeper,
                     Reservation_Day: widget.Reservation_Day,
-                    distance: widget.distance,
+                    maxdistance: widget.maxdistance,
                   ),
                 ),
               ]

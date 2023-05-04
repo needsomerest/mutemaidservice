@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/NotificationList.dart';
 import 'package:mutemaidservice/model/Data/NotificationData.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/model/notification_managet.dart';
+import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 
 class NotificationMaidScreen extends StatefulWidget {
   NotificationData notificationdata;
+  Maid maid;
 
-  NotificationMaidScreen({required this.notificationdata});
+  NotificationMaidScreen({required this.notificationdata, required this.maid});
 
   @override
   State<NotificationMaidScreen> createState() => _NotificationMaidScreenState();
@@ -26,10 +29,18 @@ class _NotificationMaidScreenState extends State<NotificationMaidScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeMaidScreen(maid: widget.maid)));
+          },
         ),
         title: Text('การแจ้งเตือน',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/GetFavMaid.dart';
 import 'package:mutemaidservice/component/MaidDetail.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
@@ -12,22 +13,22 @@ class CheckDateTimeBooking extends StatefulWidget {
   String Reservation_Day;
   bool booked;
   ReservationData reservationData;
-  String callby;
+  bool callbymenu;
   Housekeeper housekeeper;
   AddressData addressData;
-  bool checkby;
-  int distance;
+  bool callbymaid;
+  int maxdistance;
   GeoPoint location_maid;
   CheckDateTimeBooking(
       {required this.UserID,
       required this.Reservation_Day,
       required this.reservationData,
-      required this.callby,
+      required this.callbymenu,
       required this.housekeeper,
       required this.addressData,
       required this.booked,
-      required this.checkby,
-      required this.distance,
+      required this.callbymaid,
+      required this.maxdistance,
       required this.location_maid});
 
   @override
@@ -40,34 +41,40 @@ class _CheckDateTimeBookingState extends State<CheckDateTimeBooking> {
 
   Future<bool> DateTimeInReservation() async {
     List<Map<String, dynamic>> data = [];
-    int count = 0;
+    // if (widget.reservationData.DateTimeService != "DateTimeService") {
+    //   initializeDateFormatting('th');
+    //   DateTime dateTime = DateFormat("yyyy-MM-dd")
+    //       .parse(widget.reservationData.DateTimeService);
 
-    // widget.reservationData.DateTimeService =
-    //     DateFormat.yMMMMd('th').format(dateTime);
+    //   widget.reservationData.DateTimeService =
+    //       DateFormat.yMMMMd('th').format(dateTime);
+    // }
 
-    QuerySnapshot<Map<String, dynamic>> ReservationSnapshot =
-        await FirebaseFirestore.instance
-            .collection('User')
-            .doc(widget.UserID)
-            .collection('Reservation')
-            .get();
-    for (QueryDocumentSnapshot<Map<String, dynamic>> ReservationDoc
-        in ReservationSnapshot.docs) {
-      Map<String, dynamic> ReservationData = ReservationDoc.data();
+    QuerySnapshot<Map<String, dynamic>> UserSnapshot =
+        await FirebaseFirestore.instance.collection('User').get();
 
-      if (ReservationData["HousekeeperID"] ==
-          widget.housekeeper.HousekeeperID) {
-        if (ReservationData["DatetimeService"] ==
-            widget.reservationData.DateTimeService) {
-          count = count + 1;
+    for (QueryDocumentSnapshot<Map<String, dynamic>> UserDoc
+        in UserSnapshot.docs) {
+      QuerySnapshot<Map<String, dynamic>> ReservationSnapshot =
+          await FirebaseFirestore.instance
+              .collection('User')
+              .doc(UserDoc.id)
+              .collection('Reservation')
+              .get();
+
+      for (QueryDocumentSnapshot<Map<String, dynamic>> ReservationDoc
+          in ReservationSnapshot.docs) {
+        if (ReservationDoc['HousekeeperID'] ==
+            widget.housekeeper.HousekeeperID) {
+          if (ReservationDoc['DatetimeService'] ==
+              widget.reservationData.DateTimeService) {
+            return true;
+          }
         }
-      }
-      if (count > 0) {
-        return false;
       }
     }
 
-    return true;
+    return false;
   }
 
   final data = '';
@@ -78,24 +85,24 @@ class _CheckDateTimeBookingState extends State<CheckDateTimeBooking> {
         .where('DateAvailable', arrayContains: widget.Reservation_Day)
         .get();
     if (HousekeeperSnapshot.docs.isNotEmpty) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   void initState() {
     super.initState();
     initializeDateFormatting('th');
 
-    CheckTimeHousekeeper().then((result) {
+    CheckTimeHousekeeper().then((result_time) {
       setState(() {
-        ischecktime = result;
+        ischecktime = result_time;
       });
     });
 
-    DateTimeInReservation().then((result) {
+    DateTimeInReservation().then((result_reserve) {
       setState(() {
-        checkjob = result;
+        checkjob = result_reserve;
       });
     });
   }
@@ -105,51 +112,19 @@ class _CheckDateTimeBookingState extends State<CheckDateTimeBooking> {
     return Container(
       child: Column(
         children: [
-          if (widget.checkby == true) ...[
-            if (ischecktime == true && checkjob == true) ...[
-              MaidDetail(
-                widget.UserID,
-                false,
-                widget.booked,
-                widget.reservationData,
-                'null',
-                widget.housekeeper,
-                widget.addressData,
-                widget.Reservation_Day,
-                widget.distance,
-                widget.location_maid,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-            ],
-          ],
-          if (widget.checkby == false) ...[
-            if (widget.callby == 'menu') ...[
-              GetFavMaid(
-                booked: widget.booked,
-                userid: widget.UserID,
-                reservationData: widget.reservationData,
-                callby: widget.callby,
-                housekeeper: widget.housekeeper,
-                addressData: widget.addressData,
-                Reservation_Day: widget.Reservation_Day,
-                distance: widget.distance,
-              )
-            ] else ...[
-              if (ischecktime == true && checkjob == true) ...[
-                GetFavMaid(
-                  booked: widget.booked,
-                  userid: widget.UserID,
-                  reservationData: widget.reservationData,
-                  callby: widget.callby,
-                  housekeeper: widget.housekeeper,
-                  addressData: widget.addressData,
-                  Reservation_Day: widget.Reservation_Day,
-                  distance: widget.distance,
-                )
-              ],
-            ],
+          if (ischecktime == false && checkjob == false) ...[
+            MaidDetail(
+              widget.UserID,
+              false,
+              widget.booked,
+              widget.reservationData,
+              false,
+              widget.housekeeper,
+              widget.addressData,
+              widget.Reservation_Day,
+              widget.maxdistance,
+              widget.location_maid,
+            ),
           ],
         ],
       ),

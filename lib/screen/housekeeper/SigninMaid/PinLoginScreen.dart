@@ -76,14 +76,18 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
+                  print("ohha");
                   FirebaseFirestore.instance
                       .collection('Housekeeper')
                       .where('PhoneNumber', isEqualTo: widget.phone)
-                      .where('Pin', isEqualTo: _pinPutController.text.trim())
+                      .where('Pin', isEqualTo: _pinPutController.text)
                       .get()
                       .then((QuerySnapshot querySnapshot) {
+                    print("A");
                     if (querySnapshot.size != 0) {
+                      print("2");
                       querySnapshot.docs.forEach((doc) {
+                        print("3");
                         setState(() {
                           maid.HousekeeperID = doc.id;
                           maid.FirstName = doc['FirstName'];

@@ -11,11 +11,11 @@ class InfoBooking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    initializeDateFormatting('th');
-    DateTime dateTime =
-        DateFormat("yyyy-MM-dd").parse(reservationData.DateTimeService);
+    // initializeDateFormatting('th');
+    // DateTime dateTime =
+    //     DateFormat("yyyy-MM-dd").parse(reservationData.DateTimeService);
 
-    reservationData.DateTimeService = DateFormat.yMMMMd('th').format(dateTime);
+    // reservationData.DateTimeService = DateFormat.yMMMMd('th').format(dateTime);
     return Container(
       height: 500,
       width: 400,

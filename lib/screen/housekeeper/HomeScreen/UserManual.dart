@@ -6,6 +6,7 @@ import 'package:mutemaidservice/component/VideoCard.dart';
 import 'package:mutemaidservice/component/assetplayer.dart';
 import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/DistanceScreen.dart';
+import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 
 class UserManual extends StatefulWidget {
   final Maid maid;
@@ -25,10 +26,18 @@ class _UserManualState extends State<UserManual> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeMaidScreen(maid: widget.maid)));
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -76,7 +85,7 @@ class _UserManualState extends State<UserManual> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => VideoPlayerScreen(
-                              "https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/SignLanguage%2F61.%20%E0%B9%80%E0%B8%9B%E0%B8%A5%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%99%E0%B8%9E%E0%B8%A3%E0%B8%A1.mp4?alt=media&token=fb2877d7-f1c4-4af7-a31a-d3e39b1546a9")));
+                              "https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/SignLanguage%2F%E0%B8%84%E0%B8%B9%E0%B9%88%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99.mp4?alt=media&token=3305c536-900c-4c67-bca9-5e89ca2ef6a5")));
                 },
               ),
               Container(

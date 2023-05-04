@@ -1,21 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/FavMaidList.dart';
-import 'package:mutemaidservice/component/RateStar.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
-import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
-import '../BookingScreen/BookingScreen.dart';
+import 'package:mutemaidservice/screen/user/MenuScreen/MenuScreen.dart';
 
 class MyfavoriteScreen extends StatefulWidget {
-  final String userID;
-  MyfavoriteScreen({
-    required this.userID,
-  });
-
   @override
   State<MyfavoriteScreen> createState() => _MyfavoriteScreenState();
 }
@@ -51,9 +43,6 @@ class _MyfavoriteScreenState extends State<MyfavoriteScreen> {
       true,
       "");
 
-  final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
-      "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
-
   final newAddress = AddressData(
       "AddressID",
       "Addressimage",
@@ -76,22 +65,17 @@ class _MyfavoriteScreenState extends State<MyfavoriteScreen> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading:
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              //   }, child:
-              Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()));
+            },
           ),
-          // ),
-          //  Icon(
-          //     Icons.keyboard_backspace,
-          //     color: Colors.white,
-          //   ),
           title: Text('ส่งงานให้แม่บ้านคนโปรด',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
@@ -100,12 +84,11 @@ class _MyfavoriteScreenState extends State<MyfavoriteScreen> {
             height: 800,
             child: FavMaidList(
               addressData: newAddress,
-              housekeeper: newHousekeeper,
               booked: false,
               reservationData: newReservationData,
-              callby: 'menu',
+              callbymenu: true,
               Reservation_Day: '-',
-              distance: 100,
+              maxdistance: 100,
             ),
           ),
         ) /*FavMaidList(

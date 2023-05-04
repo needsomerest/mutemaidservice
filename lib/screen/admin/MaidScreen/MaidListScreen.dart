@@ -199,10 +199,16 @@ class _MaidListScreenState extends State<MaidListScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => HomeAdminScreen()));
+          },
         ),
         title: Text('รายชื่อแม่บ้าน',
             style: TextStyle(

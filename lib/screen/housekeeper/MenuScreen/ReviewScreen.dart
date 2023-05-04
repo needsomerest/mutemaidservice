@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/CardReview.dart';
 import 'package:mutemaidservice/model/Data/maidData.dart';
+import 'package:mutemaidservice/screen/housekeeper/MenuScreen/ProfileMaidScreen.dart';
 
 class ReviewScreen extends StatefulWidget {
   final Maid maid;
@@ -23,10 +24,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileMaidScreen(maid: widget.maid)));
+          },
         ),
         title: Text('รีวิวจากลูกค้า',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

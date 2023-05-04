@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/NotificationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/HomeScreen.dart';
 
 class NotificationScreen extends StatefulWidget {
   NotificationData notificationdata;
@@ -102,10 +103,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+          },
         ),
         title: Text('การแจ้งเตือน',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

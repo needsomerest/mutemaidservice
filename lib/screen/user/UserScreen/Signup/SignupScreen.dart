@@ -25,7 +25,6 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  static const String _title = 'Sign Up | Mute Maid Service';
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   String? errorMessages = '';
   String imageurl =
@@ -41,14 +40,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _controllersPhoneNumber = TextEditingController();
   final TextEditingController _controllersGender = TextEditingController();
   final TextEditingController _controllersRegion = TextEditingController();
-
-/*                    final email = _controllersEmail.text;
-                    final password = _controllersPassword.text;
-                    final firstname = _controllersFirstName.text;
-                    final lastname = _controllersLastName.text;
-                    final dob = _controllersDateOfBirth.text;
-                    final phonenumber = _controllersPhoneNumber.text;
-                    final gender = _controllersGender.text;*/
 
   void _showPicker(context) {
     showModalBottomSheet(

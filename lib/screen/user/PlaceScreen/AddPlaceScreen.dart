@@ -3,19 +3,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocode/geocode.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/DropdownArea.dart';
 import 'package:mutemaidservice/component/LocationForm.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/user/PlaceScreen/MyplaceScreen.dart';
 
 class Addplace extends StatefulWidget {
   bool edit;
   bool typecondo = true;
-  String address;
   bool booking;
 
-  Addplace(this.booking, this.edit, this.address);
+  Addplace(this.booking, this.edit);
   final User? user = Auth().currentUser;
 
   @override
@@ -41,6 +44,39 @@ class _AddplaceState extends State<Addplace> {
     GeoPoint(0.0, 0.0),
   );
 
+  final newReservationData = new ReservationData(
+      "",
+      "",
+      DateFormat('yyyy-MM-dd').format(DateTime.now()).toString(),
+      "14:30",
+      "",
+      "2 ชม. แนะนำ",
+      Duration(
+        hours: 0,
+      ),
+      "ครั้งเดียว",
+      "เปลี่ยนผ้าคลุมเตียงและปลอกหมอน",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "ไม่มี",
+      "",
+      GeoPoint(0.0, 0.0),
+      "",
+      "",
+      "",
+      "กำลังตรวจสอบ",
+      true,
+      "");
+
+  final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
+      "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,10 +85,23 @@ class _AddplaceState extends State<Addplace> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Myplace(
+                          book: false,
+                          addressData: newAddressData,
+                          reservationData: newReservationData,
+                          housekeeper: newHousekeeper,
+                        )));
+          },
         ),
         title: Text(
             widget.edit == false
@@ -62,7 +111,7 @@ class _AddplaceState extends State<Addplace> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: widget.edit == false ? 1110 : 1060,
+          height: widget.edit == false ? 1100 : 1060,
           width: double.infinity,
           alignment: Alignment.center,
           child: Column(
@@ -244,6 +293,7 @@ class _AddplaceState extends State<Addplace> {
                 child: LocationForm(
                   booking: widget.booking == true ? true : false,
                   addressData: newAddressData,
+                  edit: widget.edit,
                 ),
               ),
             ],

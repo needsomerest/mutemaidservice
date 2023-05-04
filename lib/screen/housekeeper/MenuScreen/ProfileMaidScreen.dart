@@ -8,6 +8,7 @@ import 'package:mutemaidservice/component/SettingName.dart';
 import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/RoleScreen.dart';
+import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/MenuScreen/EditScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/MenuScreen/MyMoney.dart';
 import 'package:mutemaidservice/screen/housekeeper/MenuScreen/ReviewScreen.dart';
@@ -43,10 +44,18 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeMaidScreen(maid: widget.maid)));
+          },
         ),
         title: Text('โปรไฟล์',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -195,7 +204,10 @@ class _ProfileMaidScreenState extends State<ProfileMaidScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ContactScreen()));
+                                    builder: (context) => ContactScreen(
+                                          callbyuser: false,
+                                          maid: widget.maid,
+                                        )));
                           },
                         ),
                         InkWell(

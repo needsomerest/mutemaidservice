@@ -5,23 +5,36 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/InfoPrice.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/PaymentData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/screen/user/BookingScreen/Success.dart';
+import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmInfoScreen.dart';
 import 'package:mutemaidservice/screen/user/ConfirmScreen/Payment.dart';
 
 class ConfirmPayment extends StatefulWidget {
   bool paid;
   ReservationData reservationData;
   PaymentData paymentdata;
+  Housekeeper housekeeper;
+  AddressData addressdata;
+  int maxdistance;
+  String Reservation_Day;
+
   bool callby;
-  ConfirmPayment({
-    Key? key,
-    required this.paymentdata,
-    required this.paid,
-    required this.reservationData,
-    required this.callby,
-  }) : super(key: key);
+
+  ConfirmPayment(
+      {Key? key,
+      required this.paymentdata,
+      required this.paid,
+      required this.reservationData,
+      required this.callby,
+      required this.Reservation_Day,
+      required this.addressdata,
+      required this.housekeeper,
+      required this.maxdistance})
+      : super(key: key);
 
   @override
   State<ConfirmPayment> createState() => _ConfirmPaymentState();
@@ -41,10 +54,25 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ConfirmInfo(
+                        booked: false,
+                        housekeeper: widget.housekeeper,
+                        reservationData: widget.reservationData,
+                        button_cancel: true,
+                        addressdata: widget.addressdata,
+                        Reservation_Day: widget.Reservation_Day,
+                        maxdistance: widget.maxdistance)));
+          },
         ),
         title: Text('ยืนยันและชำระเงิน',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -141,6 +169,10 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
                                 reservationData: widget.reservationData,
                                 paymentdata: widget.paymentdata,
                                 callby: widget.callby,
+                                maxdistance: widget.maxdistance,
+                                housekeeper: widget.housekeeper,
+                                addressdata: widget.addressdata,
+                                Reservation_Day: widget.Reservation_Day,
                               )));
                 },
               ),

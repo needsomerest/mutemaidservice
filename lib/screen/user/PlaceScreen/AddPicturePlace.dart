@@ -6,9 +6,10 @@ import 'package:mutemaidservice/component/Stepbar.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/user/PlaceScreen/MyplaceScreen.dart';
+import 'package:mutemaidservice/screen/user/PlaceScreen/map.dart';
 import 'AddPlaceScreen.dart';
-// import 'AddPlaceScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -18,10 +19,15 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class addpictureplace extends StatefulWidget {
   bool booking;
+  bool edit;
   final AddressData addressData;
 
   // const LocationForm({super.key});
-  addpictureplace({Key? key, required this.booking, required this.addressData})
+  addpictureplace(
+      {Key? key,
+      required this.booking,
+      required this.addressData,
+      required this.edit})
       : super(key: key);
 
   @override
@@ -29,10 +35,12 @@ class addpictureplace extends StatefulWidget {
 }
 
 class _addpictureplaceState extends State<addpictureplace> {
-  Future SetAddress(String uid) async {
+  final User? user = Auth().currentUser;
+
+  Future SetAddress(AddressData addressData) async {
     CollectionReference address = FirebaseFirestore.instance
         .collection("User")
-        .doc(uid)
+        .doc(user!.uid)
         .collection("Address");
 
     DocumentReference newDocref = address.doc();
@@ -41,9 +49,9 @@ class _addpictureplaceState extends State<addpictureplace> {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   String? errorMessages = '';
-  String imageurl = '';
+  String imageurl =
+      'https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/AddressImage%2Fex.home.jpg?alt=media&token=7e5b3838-8d5d-478f-8162-853fd6bd54a7';
   String _password = '';
-  String _uid = '';
 
   bool _checkupload = false;
 
@@ -112,14 +120,15 @@ class _addpictureplaceState extends State<addpictureplace> {
   Future uploadFile() async {
     if (_photo == null) return;
     final fileName = basename(_photo!.path);
-    final destination = 'PaymentImage/$fileName';
+    final destination = 'AddressImage/$fileName';
 
     try {
       final ref = firebase_storage.FirebaseStorage.instance
           .ref(destination)
-          .child('PaymentImage/');
+          .child('AddressImage/');
       await ref.putFile(_photo!);
       imageurl = await ref.getDownloadURL();
+      widget.addressData.Addressimage = imageurl;
     } catch (e) {
       print('มีข้อผิดพลาดบางอย่างเกิดขึ้น กรุราลองใหม่อีกครั้ง');
     }
@@ -180,22 +189,22 @@ class _addpictureplaceState extends State<addpictureplace> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading:
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              //   }, child:
-              Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapsPage(
+                          booking: widget.booking,
+                          addressData: widget.addressData,
+                          edit: widget.edit)));
+            },
           ),
-          // ),
-          //  Icon(
-          //     Icons.keyboard_backspace,
-          //     color: Colors.white,
-          //   ),
           title: Text('เพิ่มสถานที่ใช้บริการ',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
@@ -314,8 +323,7 @@ class _addpictureplaceState extends State<addpictureplace> {
                     style: TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
-                    widget.addressData.Addressimage = imageurl;
-                    SetAddress(_uid);
+                    SetAddress(widget.addressData);
                     Navigator.push(
                         context,
                         MaterialPageRoute(

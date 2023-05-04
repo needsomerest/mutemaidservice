@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:mutemaidservice/component/RateStar.dart';
 import 'package:mutemaidservice/component/ReviewList.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
@@ -10,21 +9,25 @@ import 'package:mutemaidservice/screen/user/BookingScreen/BookingScreen.dart';
 import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmInfoScreen.dart';
 
 class MaidDetailScreen extends StatefulWidget {
-  final String callby;
   final ReservationData reservationData;
   final AddressData addressData;
   final Housekeeper housekeeper;
   int sumreview;
   double avgreview;
+  bool callbymenu;
+  int maxdistance;
+  String reservation_day;
 
   MaidDetailScreen(
       {Key? key,
-      required this.callby,
+      required this.callbymenu,
       required this.reservationData,
       required this.addressData,
       required this.housekeeper,
       required this.sumreview,
-      required this.avgreview})
+      required this.avgreview,
+      required this.maxdistance,
+      required this.reservation_day})
       : super(key: key);
   bool star = false;
 
@@ -402,7 +405,7 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                           widget.reservationData.HousekeeperLastName =
                               widget.housekeeper.LastName;
 
-                          if (widget.callby == 'menu') {
+                          if (widget.callbymenu == true) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -411,7 +414,7 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                                           housekeeper: widget.housekeeper,
                                           reservationData:
                                               widget.reservationData,
-                                          callby: true,
+                                          backward: false,
                                         )));
                           } else {
                             Navigator.push(
@@ -422,7 +425,11 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                                               widget.reservationData,
                                           housekeeper: widget.housekeeper,
                                           booked: false,
-                                          callby: false,
+                                          button_cancel: false,
+                                          addressdata: widget.addressData,
+                                          maxdistance: widget.maxdistance,
+                                          Reservation_Day:
+                                              widget.reservation_day,
                                         )));
                           }
 
@@ -433,7 +440,10 @@ class _MaidDetailScreenState extends State<MaidDetailScreen> {
                                         booked: false,
                                         housekeeper: widget.housekeeper,
                                         reservationData: widget.reservationData,
-                                        callby: false,
+                                        button_cancel: false,
+                                        addressdata: widget.addressData,
+                                        maxdistance: widget.maxdistance,
+                                        Reservation_Day: widget.reservation_day,
                                       )));
                         },
                       ),

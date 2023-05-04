@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -8,10 +7,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/user/ChatScreen/ChatScreen.dart';
 import '../../../component/ChatAtom.dart';
-import '../../../component/Stepbar.dart';
 import '../../HomeScreen.dart';
-import '../../housekeeper/ChatScreen/chatpage.dart';
-import '../../housekeeper/ChatScreen/test.dart';
 import '../BookingScreen/MyBooking.dart';
 import '../HelpScreen/HelpScreen.dart';
 
@@ -108,31 +104,27 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       } else {
         receiver = message.sender;
       }
-      // print('Message ID: ${message.id}');
-      // print('Sender: ${message.sender}');
-      // print('Receiver: ${message.receiver}');
-      // print('Text: ${message.text}');
-      // print('Timestamp: ${message.timestamp.toDate()}');
-      // String receiver = message.receiver;
       DocumentSnapshot<Map<String, dynamic>> housekeeperSnapshot =
           await FirebaseFirestore.instance
               .collection('Housekeeper')
               .doc(receiver)
               .get();
+      if (housekeeperSnapshot.exists) {
+        Map<String, dynamic> housekeeperData = housekeeperSnapshot.data()!;
+        housekeeperData['housekeeperId'] = receiver;
+        // dataList.add(housekeeperData);
+        // print(dataList.length);
+        // for (int i = 0; i < dataList.length; i++) {
+        //   String receiver = dataList[i]['housekeeperId'];
+        // if (message.receiver == receiver) {
+        Map<String, dynamic> mergedData =
+            Map<String, dynamic>.from(housekeeperData);
+        mergedData['latestMessageId'] = message.id;
+        mergedData['latestMessageText'] = message.text;
+        mergedData['latestMessageTimestamp'] = message.timestamp;
+        mergedDataList.add(mergedData);
+      }
 
-      Map<String, dynamic> housekeeperData = housekeeperSnapshot.data()!;
-      housekeeperData['housekeeperId'] = receiver;
-      // dataList.add(housekeeperData);
-      // print(dataList.length);
-      // for (int i = 0; i < dataList.length; i++) {
-      //   String receiver = dataList[i]['housekeeperId'];
-      // if (message.receiver == receiver) {
-      Map<String, dynamic> mergedData =
-          Map<String, dynamic>.from(housekeeperData);
-      mergedData['latestMessageId'] = message.id;
-      mergedData['latestMessageText'] = message.text;
-      mergedData['latestMessageTimestamp'] = message.timestamp;
-      mergedDataList.add(mergedData);
       // }
       // }
       // print(dataList.length);
@@ -156,11 +148,14 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 
   Future<void> _getDataFromFirebase() async {
     data = await getHousekeeperSnapshots(uid);
-    setState(() {});
     print(data.length);
     for (int i = 0; i < data.length; i++) {
       print(data[i]);
     }
+    if (mounted) {
+      setState(() {});
+    }
+
     // print(data);
     // print(dataList);
   }
@@ -180,6 +175,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,

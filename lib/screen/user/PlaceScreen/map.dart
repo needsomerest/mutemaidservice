@@ -6,17 +6,22 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:location/location.dart';
-// import 'package:geocoder/geocoder.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/screen/user/PlaceScreen/AddPicturePlace.dart';
+import 'package:mutemaidservice/screen/user/PlaceScreen/AddPlaceScreen.dart';
 import 'package:mutemaidservice/screen/user/PlaceScreen/Addlocation.dart';
 
 class MapsPage extends StatefulWidget {
   bool booking;
+  bool edit;
   final AddressData addressData;
-  MapsPage({Key? key, required this.booking, required this.addressData})
+  MapsPage(
+      {Key? key,
+      required this.booking,
+      required this.addressData,
+      required this.edit})
       : super(key: key);
   @override
   _MapsPageState createState() => _MapsPageState();
@@ -105,6 +110,20 @@ class _MapsPageState extends State<MapsPage> {
     // String address = getPlace() as String;
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Addplace(widget.booking, widget.edit)));
+            },
+          ),
           title: Text('ค้นหาตำแหน่งที่ตั้งสถานที่'),
         ),
         body: FutureBuilder(
@@ -165,6 +184,7 @@ class _MapsPageState extends State<MapsPage> {
                                             ? true
                                             : false,
                                         addressData: widget.addressData,
+                                        edit: widget.edit,
                                       )));
 
                           // _getAddress(

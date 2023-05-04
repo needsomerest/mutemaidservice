@@ -238,8 +238,13 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String selectedGender = dataList[0]['Gender'];
-    String selectedRegion = dataList[0]['Region'];
+    String selectedGender = "อื่นๆ";
+    String selectedRegion = "อื่นๆ";
+    if (dataList.isNotEmpty) {
+      selectedGender = dataList[0]['Gender'];
+      selectedRegion = dataList[0]['Region'];
+    }
+
     // final _uid = widget.HousekeeperID;
     // final data = getUser(_uid);
     // getData(_uid);
@@ -262,7 +267,6 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
           child: Container(
             height: 1150,
             width: double.infinity,
-            // alignment: Alignment.center,
             child: dataList.isEmpty
                 ? Center(
                     child: CircularProgressIndicator(),
@@ -270,74 +274,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      // StreamBuilder(
-                      //   stream: FirebaseFirestore.instance
-                      //       .collection('messages')
-                      //       .snapshots(),
-                      //   builder: (context, snapshot) {
-                      //     if (snapshot.hasError) {
-                      //       return Center(
-                      //         child: Text(snapshot.error.toString()),
-                      //       );
-                      //     }
-                      //     if (snapshot.hasData) {
-                      //       final messages = snapshot.data!.docs;
-                      //       List<Text> messageWigdets = [];
-                      //       for (var message in messages) {
-                      //         final messageText = message['text'];
-                      //         final messageSender = message['sender'];
-                      //         final messageWigdet =
-                      //             Text('$messageText from $messageSender');
-                      //         messageWigdets.add(messageWigdet);
-                      //       }
-                      //       return Expanded(
-                      //         child: ListView(
-                      //           children: [...messageWigdets],
-                      //         ),
-                      //       );
-                      //     }
-                      //     return const CircularProgressIndicator.adaptive();
-                      //   },
-                      // ),
-                      // Center(
-                      //   child: GestureDetector(
-                      //     onTap: () {
-                      //       /* _showPicker(context);*/
-                      //     },
-                      //     child: CircleAvatar(
-                      //       radius: 60,
-                      //       backgroundColor: HexColor("#5D5FEF"),
-                      //       child: _photo != null
-                      //           ? ClipRRect(
-                      //               borderRadius: BorderRadius.circular(50),
-                      //               child: Image.file(
-                      //                 _photo!,
-                      //                 width: 110,
-                      //                 height: 110,
-                      //                 fit: BoxFit.fitHeight,
-                      //               ),
-                      //             )
-                      //           : Container(
-                      //               // margin: EdgeInsets.all(20),
-                      //               decoration: BoxDecoration(
-                      //                   color: Colors.grey[200],
-                      //                   borderRadius:
-                      //                       BorderRadius.circular(50)),
-                      //               width: 120,
-                      //               height: 120,
-                      //               child: Icon(
-                      //                 Icons.camera_alt,
-                      //                 color: Colors.grey[800],
-                      //               ),
-                      //             ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   height: 20,
-                      // ),
                       Container(
-                          // margin: EdgeInsets.only(top: 30),
                           height: 1150,
                           decoration: BoxDecoration(
                               color: HexColor('#FFFFFF'),
@@ -348,49 +285,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                             padding: EdgeInsets.all(20.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              // mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                // Text(
-                                //   'แก้ไขข้อมูลส่วนตัว',
-                                //   style: TextStyle(
-                                //       fontSize: 18,
-                                //       color: Colors.black,
-                                //       fontWeight: FontWeight.bold),
-                                //   textAlign: TextAlign.left,
-                                // ),
-                                // Center(
-                                //   child: GestureDetector(
-                                //     onTap: () {
-                                //       /* _showPicker(context);*/
-                                //     },
-                                //     child: CircleAvatar(
-                                //       radius: 60,
-                                //       backgroundColor: HexColor("#5D5FEF"),
-                                //       child: _photo != null
-                                //           ? ClipRRect(
-                                //               borderRadius: BorderRadius.circular(50),
-                                //               child: Image.file(
-                                //                 _photo!,
-                                //                 width: 110,
-                                //                 height: 110,
-                                //                 fit: BoxFit.fitHeight,
-                                //               ),
-                                //             )
-                                //           : Container(
-                                //               decoration: BoxDecoration(
-                                //                   color: Colors.grey[200],
-                                //                   borderRadius:
-                                //                       BorderRadius.circular(50)),
-                                //               width: 120,
-                                //               height: 120,
-                                //               child: Icon(
-                                //                 Icons.camera_alt,
-                                //                 color: Colors.grey[800],
-                                //               ),
-                                //             ),
-                                //     ),
-                                //   ),
-                                // ),
                                 SizedboxHeaderForm("ชื่อจริง : "),
                                 TextFormField(
                                   controller: _controllersFirstName,

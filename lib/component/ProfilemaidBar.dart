@@ -131,7 +131,9 @@ class ProfileMaidBar extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => NotificationList(
-                                          false, this.maid.HousekeeperID)));
+                                          false,
+                                          this.maid.HousekeeperID,
+                                          maid)));
                               // NotificationScreen()));
 
                               // Handle button press

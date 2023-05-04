@@ -1,17 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:mutemaidservice/component/CalculateDistance.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
-import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
-import 'package:mutemaidservice/screen/housekeeper/HomeScreen/LocationMaid.dart';
+import 'package:mutemaidservice/screen/user/BookingScreen/BookingScreen.dart';
 import 'package:mutemaidservice/screen/user/MaidScreen/MaidScreen.dart';
-import 'package:mutemaidservice/screen/user/PlaceScreen/map.dart';
 
 class BookingDistanceScreen extends StatefulWidget {
   final ReservationData reservationData;
@@ -40,17 +34,29 @@ class _BookingDistanceScreenState extends State<BookingDistanceScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BookingScreen(
+                        reservationData: widget.reservationData,
+                        addressData: widget.addressData,
+                        housekeeper: widget.housekeeper,
+                        backward: true)));
+          },
         ),
         title: Text('กรองระยะทาง',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: 700,
+          height: 750,
           width: double.infinity,
           alignment: Alignment.center,
           padding: EdgeInsets.all(50),
@@ -136,7 +142,7 @@ class _BookingDistanceScreenState extends State<BookingDistanceScreen> {
                                   housekeeper: widget.housekeeper,
                                   Reservation_Day: widget.Reservation_Day,
                                   addressData: widget.addressData,
-                                  distance: _value.round(),
+                                  maxdistance: _value.round(),
                                 )
                             // LocationMaid()
                             //LocationMaid()

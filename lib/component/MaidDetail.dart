@@ -1,27 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
-import 'package:mutemaidservice/model/Data/FavHousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
-import 'package:mutemaidservice/screen/housekeeper/HomeScreen/JobDetailScreen.dart';
 import 'package:mutemaidservice/screen/user/BookingScreen/BookingScreen.dart';
 import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmInfoScreen.dart';
 import 'package:mutemaidservice/screen/user/MaidScreen/MaidDetailScreen.dart';
-import 'RateStar.dart';
 
 class MaidDetail extends StatefulWidget {
-  // const MaidDetail({super.key});
   final String UserID;
-  final String callby;
   final bool fav;
   bool booked;
+  bool callbymenu;
 
   final ReservationData reservationData;
   final Housekeeper housekeeper;
@@ -35,7 +29,7 @@ class MaidDetail extends StatefulWidget {
       this.fav,
       this.booked,
       this.reservationData,
-      this.callby,
+      this.callbymenu,
       this.housekeeper,
       this.addressData,
       this.Reservation_Day,
@@ -177,19 +171,22 @@ class _MaidDetailState extends State<MaidDetail> {
     });
   }
 
-  bool _ischeck = false;
-
   @override
   Widget build(BuildContext context) {
-    double distance = Geolocator.distanceBetween(
+    bool _ischeck_distance = false;
+    double different_distance = Geolocator.distanceBetween(
         widget.reservationData.AddressPoint.latitude,
         widget.reservationData.AddressPoint.longitude,
         widget.location_maid.latitude,
         widget.location_maid.longitude);
 
-    if (distance <= widget.distance) {
-      _ischeck = true;
-      // widget.housekeeper.Distance = distance.round();
+    if (widget.callbymenu == false) {
+      if (different_distance <= widget.distance) {
+        _ischeck_distance = true;
+        // widget.housekeeper.Distance = distance.round();
+      }
+    } else {
+      _ischeck_distance = true;
     }
 
     final User? user = Auth().currentUser;
@@ -216,7 +213,7 @@ class _MaidDetailState extends State<MaidDetail> {
     return Container(
       child: Column(
         children: [
-          if (_ischeck == false) ...[
+          if (_ischeck_distance == true) ...[
             SizedBox(
               height: 10,
             ),
@@ -393,7 +390,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    '${distance.toStringAsFixed(2)} กม.',
+                                    '${different_distance.toStringAsFixed(2)} กม.',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
@@ -435,7 +432,7 @@ class _MaidDetailState extends State<MaidDetail> {
                             widget.reservationData.HousekeeperLastName =
                                 widget.housekeeper.LastName;
 
-                            if (widget.callby == 'menu') {
+                            if (widget.callbymenu == true) {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -444,7 +441,7 @@ class _MaidDetailState extends State<MaidDetail> {
                                             housekeeper: widget.housekeeper,
                                             reservationData:
                                                 widget.reservationData,
-                                            callby: true,
+                                            backward: false,
                                           )));
                             } else {
                               Navigator.push(
@@ -455,7 +452,11 @@ class _MaidDetailState extends State<MaidDetail> {
                                                 widget.reservationData,
                                             housekeeper: widget.housekeeper,
                                             booked: false,
-                                            callby: false,
+                                            button_cancel: false,
+                                            Reservation_Day:
+                                                widget.Reservation_Day,
+                                            maxdistance: widget.distance,
+                                            addressdata: widget.addressData,
                                           )));
                             }
                           },
@@ -479,12 +480,14 @@ class _MaidDetailState extends State<MaidDetail> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => MaidDetailScreen(
-                              callby: widget.callby,
+                              callbymenu: widget.callbymenu,
                               addressData: widget.addressData,
                               housekeeper: widget.housekeeper,
                               reservationData: widget.reservationData,
                               sumreview: sumreview,
                               avgreview: avgreview,
+                              maxdistance: widget.distance,
+                              reservation_day: widget.Reservation_Day,
                             )));
               },
             ),

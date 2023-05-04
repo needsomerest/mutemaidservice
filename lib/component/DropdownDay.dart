@@ -29,6 +29,8 @@ class DropdownDay extends StatefulWidget {
 }
 
 class _HomePageState extends State<DropdownDay> {
+  TextEditingController _dateInputController = TextEditingController();
+
   Future<List<List<dynamic>>> getAllDateAvailable() async {
     List<List<dynamic>> dataList = [];
 
@@ -107,9 +109,10 @@ class _HomePageState extends State<DropdownDay> {
     int i = 0, j = 0;
     initializeDateFormatting('th');
     if (reservationList.isNotEmpty) {
+      datatime_reservation.clear();
       for (i = 0; i < reservationList.length; i++) {
         datatime_reservation.add(DateFormat('dd MMMM ค.ศ. yyyy', 'th')
-            .parse(reservationList[i]['DatetimeService'].toString()));
+            .parse(reservationList[i]['DatetimeService']));
       }
     }
 
@@ -128,6 +131,16 @@ class _HomePageState extends State<DropdownDay> {
             padding: EdgeInsets.all(15),
             height: MediaQuery.of(context).size.width / 5.5,
             child: Row(children: [
+              // if (reservationList.isNotEmpty) ...[
+              //   Column(
+              //     children: [
+              //       for (int i = 0; i < reservationList.length; i++) ...[
+              //         Text(
+              //             "${reservationList[i]['DatetimeService'].toString()}")
+              //       ]
+              //     ],
+              //   )
+              // ],
               if (widget.callby == true) ...[
                 DecoratedBox(
                   decoration: BoxDecoration(
@@ -142,6 +155,7 @@ class _HomePageState extends State<DropdownDay> {
                   ),
                   child: Container(
                     margin: EdgeInsets.only(left: 20),
+
                     width: 130,
                     height: 50,
                     // height: 70,
@@ -150,6 +164,7 @@ class _HomePageState extends State<DropdownDay> {
                           color: Colors.black,
                           fontSize: 14,
                           fontWeight: FontWeight.bold),
+                      controller: _dateInputController,
                       //editing controller of this TextField
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -179,6 +194,7 @@ class _HomePageState extends State<DropdownDay> {
                           print(
                               formattedDate); //formatted date output using intl package =>  2021-03-16
                           setState(() {
+                            _dateInputController.text = formattedDate;
                             widget.reservationData.DateTimeService =
                                 formattedDate;
                           });
@@ -217,6 +233,7 @@ class _HomePageState extends State<DropdownDay> {
                           color: Colors.black,
                           fontSize: 14,
                           fontWeight: FontWeight.bold),
+                      controller: _dateInputController,
                       //editing controller of this TextField
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -238,9 +255,8 @@ class _HomePageState extends State<DropdownDay> {
                           firstDate: DateTime.now(),
                           lastDate: DateTime(2100),
                           selectableDayPredicate: (DateTime date) =>
-                              !datatime_reservation.contains(date) &&
-                                      !dayweek.contains(
-                                          DateFormat('E').format(date))
+                              //!datatime_reservation.contains(date) &&
+                              !dayweek.contains(DateFormat('E').format(date))
                                   ? true
                                   : false,
                         );
@@ -255,6 +271,7 @@ class _HomePageState extends State<DropdownDay> {
                           print(
                               formattedDate); //formatted date output using intl package =>  2021-03-16
                           setState(() {
+                            _dateInputController.text = formattedDate;
                             widget.reservationData.DateTimeService =
                                 formattedDate;
                           });

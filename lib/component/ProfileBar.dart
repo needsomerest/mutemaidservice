@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/NotificationList.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/NotificationPage.dart';
 import 'package:mutemaidservice/screen/user/MenuScreen/MenuScreen.dart';
@@ -20,10 +21,13 @@ Stream<int> countDocuments(String userid) {
 
 class ProfileBar extends StatelessWidget {
   final User? user = Auth().currentUser;
+  final maid =
+      new Maid("HousekeeperID", "FirstName", "LastName", "ProfileImage");
   int notification_count = 0;
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           elevation: 0.0,
         ),
         body: SingleChildScrollView(
@@ -132,7 +136,7 @@ class ProfileBar extends StatelessWidget {
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               NotificationList(
-                                                  true, user!.uid)));
+                                                  true, user!.uid, maid)));
                                   // NotificationScreen()));
 
                                   // Handle button press

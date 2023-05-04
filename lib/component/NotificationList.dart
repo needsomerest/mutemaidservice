@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/model/Data/NotificationData.dart';
+import 'package:mutemaidservice/model/Data/maidData.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/NotificationPage.dart';
 import 'package:mutemaidservice/screen/admin/MaidScreen/NotificationMaidScreen.dart';
@@ -12,7 +13,8 @@ import 'package:mutemaidservice/screen/admin/MaidScreen/NotificationMaidScreen.d
 class NotificationList extends StatefulWidget {
   bool byuser;
   String userid;
-  NotificationList(this.byuser, this.userid);
+  Maid maid;
+  NotificationList(this.byuser, this.userid, this.maid);
   @override
   State<NotificationList> createState() => _NotificationListState();
 }
@@ -144,9 +146,9 @@ class _NotificationListState extends State<NotificationList> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           NotificationMaidScreen(
-                                            notificationdata:
-                                                newnotificationdata,
-                                          )),
+                                              notificationdata:
+                                                  newnotificationdata,
+                                              maid: widget.maid)),
                                 );
                               },
                             );

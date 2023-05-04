@@ -11,7 +11,12 @@ import 'FormInput.dart';
 class LocationForm extends StatefulWidget {
   bool booking;
   final AddressData addressData;
-  LocationForm({Key? key, required this.booking, required this.addressData})
+  bool edit;
+  LocationForm(
+      {Key? key,
+      required this.booking,
+      required this.addressData,
+      required this.edit})
       : super(key: key);
 
   List<String> title = [
@@ -42,7 +47,7 @@ class _LocationFormState extends State<LocationForm> {
     // int item = 1;
     return Scaffold(
       body: Container(
-        height: 600,
+        height: 860,
         alignment: Alignment.center,
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
@@ -105,8 +110,10 @@ class _LocationFormState extends State<LocationForm> {
                         builder: (context) =>
                             // MyMapScreen()
                             MapsPage(
-                                booking: widget.booking == true ? true : false,
-                                addressData: widget.addressData)
+                              booking: widget.booking == true ? true : false,
+                              addressData: widget.addressData,
+                              edit: widget.edit,
+                            )
                         // addpictureplace(
                         //       booking: widget.booking == true ? true : false,
                         //       // addressData: widget.addressData,

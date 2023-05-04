@@ -20,18 +20,19 @@ import '../../../component/NoteSelect.dart';
 import '../../../component/Stepbar.dart';
 import '../PlaceScreen/MyplaceScreen.dart';
 import 'PackageDetail.dart';
+import 'package:mutemaidservice/screen/HomeScreen.dart';
 
 class BookingScreen extends StatefulWidget {
   final ReservationData reservationData;
   final AddressData addressData;
   final Housekeeper housekeeper;
-  final bool callby;
+  bool backward;
   BookingScreen(
       {Key? key,
       required this.reservationData,
       required this.addressData,
       required this.housekeeper,
-      required this.callby})
+      required this.backward})
       : super(key: key);
 
   List<String> package = ["รายเดือน"];
@@ -52,7 +53,6 @@ class MyRecordState extends State<BookingScreen> {
           "หากทำการยืนยันการจอง แม่บ้านจะเข้าไปทำความสะอาดให้ท่านในเวลาเดิมที่ท่านได้เลือกไว้",
       style: AlertStyle(
         titleStyle: TextStyle(
-          // color: Colors.red,
           fontWeight: FontWeight.bold,
           fontSize: 20,
         ),
@@ -77,8 +77,8 @@ class MyRecordState extends State<BookingScreen> {
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           onPressed: () {
-            if (widget.addressData.AddressID != "AddressID" ||
-                widget.housekeeper.HousekeeperID != "HousekeeperID") {
+            if (widget.housekeeper.HousekeeperID == "HousekeeperID" &&
+                widget.addressData.AddressID == "AddressID") {
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -88,24 +88,62 @@ class MyRecordState extends State<BookingScreen> {
                             Reservation_Day: reservationday,
                             addressData: widget.addressData,
                           )));
-            } else {
+            }
+            if (widget.housekeeper.HousekeeperID != "HousekeeperID") {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => ConfirmInfo(
-                          booked: true,
-                          housekeeper: widget.housekeeper,
-                          reservationData: widget.reservationData,
-                          callby: false)));
-              // Navigator.push(
-              //     MaterialPageRoute(
-              //         builder: (context) => ConfirmInfo(
-              //                           booked: false,
-              //                           housekeeper: widget.housekeeper,
-              //                           reservationData: widget.reservationData,
-              //                           callby: true,
-              //                         )));
+                            booked: false,
+                            housekeeper: widget.housekeeper,
+                            reservationData: widget.reservationData,
+                            button_cancel: false,
+                            addressdata: widget.addressData,
+                            Reservation_Day: reservationday,
+                            maxdistance: 100,
+                          )));
             }
+            if (widget.addressData.AddressID != "AddressID") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BookingDistanceScreen(
+                            reservationData: widget.reservationData,
+                            housekeeper: widget.housekeeper,
+                            Reservation_Day: reservationday,
+                            addressData: widget.addressData,
+                          )));
+            }
+
+            // if (widget.addressData.AddressID != "AddressID" ||
+            //     widget.housekeeper.HousekeeperID != "HousekeeperID") {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => BookingDistanceScreen(
+            //                 reservationData: widget.reservationData,
+            //                 housekeeper: widget.housekeeper,
+            //                 Reservation_Day: reservationday,
+            //                 addressData: widget.addressData,
+            //               )));
+            // } else {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (context) => ConfirmInfo(
+            //               booked: true,
+            //               housekeeper: widget.housekeeper,
+            //               reservationData: widget.reservationData,
+            //               callby: false)));
+            // Navigator.push(
+            //     MaterialPageRoute(
+            //         builder: (context) => ConfirmInfo(
+            //                           booked: false,
+            //                           housekeeper: widget.housekeeper,
+            //                           reservationData: widget.reservationData,
+            //                           callby: true,
+            //                         )));
+            //}
           },
           color: HexColor('#5D5FEF'),
           // borderRadius: BorderRadius.all(Radius.circular(2.0),
@@ -120,22 +158,8 @@ class MyRecordState extends State<BookingScreen> {
     String uid = _uid.toString();
     String dayNameShort = DateFormat.E().format(DateTime.now());
 
-    if (widget.addressData.AddressID == "AddressID") {
-      widget.reservationData.AddressID = widget.addressData.AddressID;
-      widget.reservationData.addressName = widget.addressData.Address;
-      widget.reservationData.addresstype = widget.addressData.Type;
-      widget.reservationData.addressDetail = widget.addressData.AddressDetail;
-      widget.reservationData.addressImage = widget.addressData.Addressimage;
-      widget.reservationData.sizeroom = "0";
-      widget.reservationData.AddressPoint = widget.addressData.point;
-      widget.reservationData.PhoneNumber = widget.addressData.Phonenumber;
-    }
-
-    if (widget.reservationData.HousekeeperID.isNotEmpty) {
+    if (widget.housekeeper.HousekeeperID != "HousekeeperID") {
       widget.reservationData.HousekeeperID = widget.housekeeper.HousekeeperID;
-      widget.reservationData.HousekeeperFirstName =
-          widget.housekeeper.FirstName;
-      widget.reservationData.HousekeeperLastName = widget.housekeeper.LastName;
     }
 
     return Scaffold(
@@ -144,29 +168,24 @@ class MyRecordState extends State<BookingScreen> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading:
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              //   }, child:
-              Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()));
+            },
           ),
-          // ),
-          //  Icon(
-          //     Icons.keyboard_backspace,
-          //     color: Colors.white,
-          //   ),
           title: Text('จองบริการ',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
         body: SingleChildScrollView(
             child: Container(
                 width: double.infinity,
-                height: 1200,
+                height: 900,
                 // constraints: BoxConstraints(maxWidth: 300),
                 decoration: BoxDecoration(
                     color: HexColor('#FFFFFF'),
@@ -627,17 +646,23 @@ class MyRecordState extends State<BookingScreen> {
                           style: TextStyle(fontSize: 16),
                         ),
                         onPressed: () async {
-                          initializeDateFormatting('th');
-                          DateTime dateTime = DateFormat("yyyy-MM-dd")
-                              .parse(widget.reservationData.DateTimeService);
+                          if (widget.backward == false) {
+                            initializeDateFormatting('th');
+                            DateTime dateTime = DateFormat("yyyy-MM-dd")
+                                .parse(widget.reservationData.DateTimeService);
+                            dayNameShort = DateFormat.E().format(dateTime);
+                            widget.reservationData.DateTimeService =
+                                DateFormat.yMMMMd('th').format(dateTime);
+                          }
 
-                          dayNameShort = DateFormat.E().format(dateTime);
-
-                          if (widget.housekeeper.HousekeeperID !=
-                                  'HousekeeperID' ||
-                              widget.addressData.AddressID != 'AddressID') {
-                            if (widget.reservationData.Package ==
-                                "ครั้งเดียว") {
+                          if (widget.housekeeper.HousekeeperID ==
+                                  "HousekeeperID" &&
+                              widget.addressData.AddressID == "AddressID") {
+                            if (widget.reservationData.AddressID == "") {
+                              _onAlertButtonPressedError(context);
+                            } else if (widget.reservationData.Package ==
+                                    "ครั้งเดียว" ||
+                                widget.reservationData.Package == "รายครั้ง") {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -649,7 +674,52 @@ class MyRecordState extends State<BookingScreen> {
                                             Reservation_Day: dayNameShort,
                                             addressData: widget.addressData,
                                           )));
-                            } else {}
+                            } else {
+                              _onAlertButtonPressed(context, dayNameShort);
+                            }
+                          } else if (widget.housekeeper.HousekeeperID !=
+                              "HousekeeperID") {
+                            if (widget.reservationData.AddressID == "") {
+                              _onAlertButtonPressedError(context);
+                            } else if (widget.reservationData.Package ==
+                                    "ครั้งเดียว" ||
+                                widget.reservationData.Package == "รายครั้ง") {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ConfirmInfo(
+                                          booked: false,
+                                          housekeeper: widget.housekeeper,
+                                          reservationData:
+                                              widget.reservationData,
+                                          addressdata: widget.addressData,
+                                          Reservation_Day: dayNameShort,
+                                          maxdistance: 100,
+                                          button_cancel: false)));
+                            } else {
+                              _onAlertButtonPressed(context, dayNameShort);
+                            }
+                          } else if (widget.addressData.AddressID !=
+                              "AddressID") {
+                            if (widget.reservationData.AddressID == "") {
+                              _onAlertButtonPressedError(context);
+                            } else if (widget.reservationData.Package ==
+                                    "ครั้งเดียว" ||
+                                widget.reservationData.Package == "รายครั้ง") {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookingDistanceScreen(
+                                            reservationData:
+                                                widget.reservationData,
+                                            housekeeper: widget.housekeeper,
+                                            Reservation_Day: dayNameShort,
+                                            addressData: widget.addressData,
+                                          )));
+                            } else {
+                              _onAlertButtonPressed(context, dayNameShort);
+                            }
                           }
 
                           // if (widget.reservationData.AddressID == "") {

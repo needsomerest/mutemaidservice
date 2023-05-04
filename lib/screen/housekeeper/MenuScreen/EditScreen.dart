@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:mutemaidservice/screen/HomeScreen.dart';
 import 'package:mutemaidservice/screen/housekeeper/HomeScreen/HomeMaidScreen.dart';
+import 'package:mutemaidservice/screen/housekeeper/MenuScreen/ProfileMaidScreen.dart';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
@@ -56,14 +57,15 @@ class _EditScreenState extends State<EditScreen> {
   String? selectedDate;
 
   final snackBarUpdateProfileDone =
-      SnackBar(content: const Text('Edited profile information successfully.'));
-  final snackBarUpdateProfileFail =
-      SnackBar(content: const Text('Profile information cannot be edited.'));
+      SnackBar(content: const Text('สำเร็จ แก้ไขข้อมูลเสร็จสิ้น'));
+  final snackBarPhoneExits = SnackBar(
+      content: const Text('เบอร์โทรนี้มีอยู่แล้วในระบบ โปรดใส่หมายเลขอื่น'));
 
   Future updatemaid({
     required String useruid,
     required String phonenumber,
     required String region,
+    required String url,
   }) async {
     var collection = await FirebaseFirestore.instance
         .collection('Housekeeper')
@@ -71,6 +73,7 @@ class _EditScreenState extends State<EditScreen> {
         .update({
       'PhoneNumber': phonenumber,
       'Region': region,
+      'profileImage': url
     }).then((result) {
       print("new User true");
     }).catchError((onError) {
@@ -80,10 +83,10 @@ class _EditScreenState extends State<EditScreen> {
 
   Future<bool> userExists(phonenumber) async {
     return await FirebaseFirestore.instance
-        .collection('User')
+        .collection('Housekeeper')
         .where('PhoneNumber', isEqualTo: phonenumber)
         .get()
-        .then((value) => value.size > 1 ? true : false);
+        .then((value) => value.size > 0 ? true : false);
   }
 
   Future getUser(uid) async {
@@ -189,10 +192,19 @@ class _EditScreenState extends State<EditScreen> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading: Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ProfileMaidScreen(maid: widget.maid)));
+            },
           ),
           title: Text('แก้ไขข้อมูลส่วนตัว',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -204,7 +216,9 @@ class _EditScreenState extends State<EditScreen> {
               .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (!snapshot.hasData) {
-              return Text("No DATA");
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             } else {
               return SingleChildScrollView(
                 child: Container(
@@ -218,7 +232,7 @@ class _EditScreenState extends State<EditScreen> {
                       Center(
                         child: GestureDetector(
                           onTap: () {
-                            /* _showPicker(context);*/
+                            _showPicker(context);
                           },
                           child: CircleAvatar(
                             radius: 60,
@@ -384,32 +398,54 @@ class _EditScreenState extends State<EditScreen> {
                                 Center(
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      final phonenumber =
-                                          _controllersPhoneNumber.text;
-                                      final region = _controllersRegion.text;
+                                      String phonenumber = "";
+                                      String region = "";
+                                      if (_controllersPhoneNumber.text == "") {
+                                        phonenumber =
+                                            snapshot.data!.get('PhoneNumber');
+                                      } else {
+                                        phonenumber =
+                                            _controllersPhoneNumber.text;
+                                      }
+                                      if (imageurl == "") {
+                                        imageurl = widget.maid.ProfileImage;
+                                      }
+                                      if (_controllersRegion.text == "") {
+                                        region = snapshot.data!.get('Region');
+                                      } else {
+                                        region = _controllersRegion.text;
+                                      }
 
-                                      //bool result = await userExists(phonenumber);
-                                      //if (result == false) {
-                                      updatemaid(
-                                          useruid: widget.maid.HousekeeperID,
-                                          phonenumber: phonenumber,
-                                          region: selectedRegion.toString());
+                                      bool result =
+                                          await userExists(phonenumber);
+                                      if (result == false ||
+                                          _controllersPhoneNumber.text == "") {
+                                        updatemaid(
+                                            useruid: widget.maid.HousekeeperID,
+                                            phonenumber: phonenumber,
+                                            region: selectedRegion.toString(),
+                                            url: imageurl);
+                                        widget.maid.ProfileImage = imageurl;
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                                snackBarUpdateProfileDone);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    HomeMaidScreen(
+                                                      maid: widget.maid,
+                                                    )));
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBarPhoneExits);
+                                      }
 
                                       // await FirebaseAuth.instance.currentUser
                                       //     ?.updateDisplayName(
                                       //         firstname + ' ' + lastname);
                                       // /* await FirebaseAuth.instance.currentUser
                                       //     ?.updatePhotoURL(imageurl);*/
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                              snackBarUpdateProfileDone);
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomeMaidScreen(
-                                                    maid: widget.maid,
-                                                  )));
                                     },
                                     child: const Text('ยืนยัน',
                                         style: TextStyle(fontSize: 18)),

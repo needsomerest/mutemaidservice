@@ -347,6 +347,7 @@ class _AddplocationState extends State<Addplocation> {
                                     builder: (context) => addpictureplace(
                                           booking: true,
                                           addressData: newAddressData,
+                                          edit: widget.edit,
                                         )));
                           },
                         ),

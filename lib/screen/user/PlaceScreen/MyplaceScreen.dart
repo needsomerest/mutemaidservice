@@ -10,6 +10,8 @@ import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/user/BookingScreen/BookingScreen.dart';
+import 'package:mutemaidservice/screen/user/MenuScreen/MenuScreen.dart';
 import '../BookingScreen/MyBooking.dart';
 import 'AddPlaceScreen.dart';
 
@@ -60,16 +62,27 @@ class _MyplaceState extends State<Myplace> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading:
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              //   }, child:
-              Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              if (widget.book == false) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()));
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BookingScreen(
+                            reservationData: widget.reservationData,
+                            addressData: newAddress,
+                            housekeeper: newHousekeeper,
+                            backward: false)));
+              }
+            },
           ),
           // ),
           //  Icon(
@@ -147,8 +160,8 @@ class _MyplaceState extends State<Myplace> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => widget.book == false
-                                ? Addplace(false, false, "")
-                                : Addplace(true, false, "")));
+                                ? Addplace(false, false)
+                                : Addplace(true, false)));
                   },
                 ),
               ),

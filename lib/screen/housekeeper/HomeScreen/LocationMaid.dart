@@ -66,7 +66,7 @@ class _LocationMaidState extends State<LocationMaid> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter Google Maps'),
+        title: Text('Google Maps'),
       ),
       body: FutureBuilder(
         future: _getLocation(),

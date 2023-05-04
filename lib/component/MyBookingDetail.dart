@@ -391,6 +391,12 @@ class _MybookingDetailState extends State<MybookingDetail> {
                                                     reservationData:
                                                         newservationdata,
                                                     callby: false,
+                                                    Reservation_Day: '-',
+                                                    addressdata:
+                                                        widget.addressData,
+                                                    housekeeper:
+                                                        widget.housekeeper,
+                                                    maxdistance: 100,
                                                   )));
                                     },
                                   ),
@@ -494,7 +500,10 @@ class _MybookingDetailState extends State<MybookingDetail> {
                             booked: true,
                             housekeeper: widget.housekeeper,
                             reservationData: widget.reservationData,
-                            callby: true,
+                            button_cancel: true,
+                            addressdata: widget.addressData,
+                            Reservation_Day: '-',
+                            maxdistance: 100,
                           )));
             } else {
               Navigator.push(
@@ -504,7 +513,10 @@ class _MybookingDetailState extends State<MybookingDetail> {
                             booked: true,
                             housekeeper: widget.housekeeper,
                             reservationData: widget.reservationData,
-                            callby: false,
+                            button_cancel: false,
+                            addressdata: widget.addressData,
+                            Reservation_Day: '-',
+                            maxdistance: 100,
                           )));
             }
           },

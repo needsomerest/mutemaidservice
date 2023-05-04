@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mutemaidservice/component/CheckDateTimeBooking.dart';
+import 'package:mutemaidservice/component/GetFavMaid.dart';
 import 'package:mutemaidservice/model/Data/AddressData.dart';
 import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
@@ -9,21 +10,19 @@ import 'package:mutemaidservice/model/auth.dart';
 
 class FavMaidList extends StatefulWidget {
   bool booked;
-  String callby;
+  bool callbymenu;
   final ReservationData reservationData;
-  final Housekeeper housekeeper;
   String Reservation_Day;
   final AddressData addressData;
-  final int distance;
+  final int maxdistance;
   FavMaidList(
       {Key? key,
       required this.booked,
       required this.reservationData,
-      required this.callby,
-      required this.housekeeper,
+      required this.callbymenu,
       required this.Reservation_Day,
       required this.addressData,
-      required this.distance})
+      required this.maxdistance})
       : super(key: key);
 
   @override
@@ -32,32 +31,19 @@ class FavMaidList extends StatefulWidget {
 
 class _FavMaidListState extends State<FavMaidList> {
   @override
-  final newAddress = AddressData(
-      "AddressID",
-      "Addressimage",
-      "Type",
-      "SizeRoom",
-      "Address",
-      "AddressDetail",
-      "Province",
-      "District",
-      "Phonenumber",
-      "Note",
-      "User",
-      GeoPoint(0, 0));
   final User? user = Auth().currentUser;
   @override
   Widget build(BuildContext context) => Scaffold(
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection("User")
-              .doc(user!.uid)
+              .doc(user!.uid.toString())
               .collection("FavHousekeeper")
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (!snapshot.hasData) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: Text("ยังไม่มีรายการผู้ให้บริการคนโปรด"),
               );
             } else {
               return ListView(
@@ -75,17 +61,15 @@ class _FavMaidListState extends State<FavMaidList> {
 
                   newHousekeeper.HousekeeperID = MaidDocument.id;
 
-                  return CheckDateTimeBooking(
-                    UserID: user!.uid,
-                    Reservation_Day: widget.Reservation_Day,
+                  return GetFavMaid(
+                    booked: widget.booked,
+                    userid: user!.uid,
                     reservationData: widget.reservationData,
-                    callby: widget.callby,
+                    callbymenu: widget.callbymenu,
                     housekeeper: newHousekeeper,
                     addressData: widget.addressData,
-                    booked: widget.booked,
-                    checkby: false,
-                    distance: widget.distance,
-                    location_maid: GeoPoint(0.0, 0.0),
+                    Reservation_Day: widget.Reservation_Day,
+                    maxdistance: widget.maxdistance,
                   );
                 }).toList(),
               );

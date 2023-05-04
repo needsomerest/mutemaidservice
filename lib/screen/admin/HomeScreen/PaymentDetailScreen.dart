@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:mutemaidservice/model/Data/NotificationData.dart';
-import 'package:mutemaidservice/model/notification_managet.dart';
 import 'package:mutemaidservice/screen/admin/HomeScreen/ConfirmPaymentScreen.dart';
-import 'package:mutemaidservice/screen/admin/HomeScreen/HomeScreen.dart';
 import 'package:mutemaidservice/screen/admin/HomeScreen/PaymentListScreen.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
@@ -19,14 +16,12 @@ class PaymentDetailScreen extends StatefulWidget {
 }
 
 class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
-  String UserID = '';
-  String ReservationID = '';
-  String housekeeperid = '';
   Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
     List<Map<String, dynamic>> data = [];
 
     QuerySnapshot<Map<String, dynamic>> UserSnapshot =
         await FirebaseFirestore.instance.collection('User').get();
+    print('Number of User documents: ${UserSnapshot.size}');
 
     for (QueryDocumentSnapshot<Map<String, dynamic>> UserDoc
         in UserSnapshot.docs) {
@@ -37,9 +32,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
               .collection('Reservation')
               .doc(widget.Paymentid)
               .get();
-      UserID = UserDoc.id;
-      ReservationID = widget.Paymentid;
-      housekeeperid = reservationSnapshot["HousekeeperID"];
 
       print(
           'Number of Reservation documents: ${reservationSnapshot.data()}| ${UserDoc.id} ${widget.Paymentid}');
@@ -71,7 +63,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
           String paymentId = paymentDoc.id;
           docData['paymentId'] = paymentId;
           docData['ReservationId'] = reservationSnapshot.id;
-          docData['PaymentStatus'] = paymentDoc['PaymentStatus'];
           data.add(docData);
         }
 
@@ -80,49 +71,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     }
 
     return data;
-  }
-
-  Future UpdateReservationStatuse_Fail({
-    required String useruid,
-    required String reservationid,
-  }) async {
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(useruid)
-        .collection('Reservation')
-        .doc(reservationid)
-        .update({
-      'Status': 'ประวัติ',
-    }).then((result) {
-      print("Update Status true");
-    }).catchError((onError) {
-      print("onError");
-    });
-
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
-        .instance
-        .collection('User')
-        .doc(useruid)
-        .collection('Reservation')
-        .doc(reservationid)
-        .collection('Payment')
-        .limit(1)
-        .get();
-
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(useruid)
-        .collection('Reservation')
-        .doc(reservationid)
-        .collection('Payment')
-        .doc(querySnapshot.docs[0].id)
-        .update({
-      'PaymentStatus': 'ปฏิเสธ',
-    }).then((result) {
-      print("Update Status true");
-    }).catchError((onError) {
-      print("onError");
-    });
   }
 
   List<Map<String, dynamic>> dataList = [];
@@ -139,37 +87,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     print("datalist: ${dataList}");
   }
 
-  Future Notification_confirm() async {
-    NotificationData notificationData = NotificationData(
-        UserID,
-        ReservationID,
-        "หนังสือการจองหมายเลข ${ReservationID} ตรวจสอบพบหลักฐานการชำระเงินเรียบร้อยแล้ว",
-        "ผลการตรวจสอบการชำระเงิน");
-    await FirebaseFirestore.instance
-        .collection("Notification")
-        .doc()
-        .set(notificationData.CreateNotificationtoJson());
-
-    NotificationData notificationMaidData = NotificationData(housekeeperid,
-        ReservationID, "ได้รับรายได้ จาก ${ReservationID}", "รายได้");
-    await FirebaseFirestore.instance
-        .collection("Notification")
-        .doc()
-        .set(notificationMaidData.CreateNotificationtoJson());
-  }
-
-  Future Notification_cancel() async {
-    final notificationData = new NotificationData(
-        UserID,
-        ReservationID,
-        "หนังสือการจองหมายเลข ${ReservationID} ตรวจสอบพบหลักฐานการชำระเงินพบความผิดพลาด ระบบทำการยกเลิกการจองรายการดังกล่าวอัตโนมัติ",
-        "ผลการตรวจสอบการชำระเงิน");
-    await FirebaseFirestore.instance
-        .collection("Notification")
-        .doc()
-        .set(notificationData.CreateNotificationtoJson());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,10 +95,16 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
-        leading: Icon(
-          Icons.keyboard_backspace,
-          color: Colors.white,
-          size: 30,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_backspace,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PaymentListScreen()));
+          },
         ),
         title: Text('รายละเอียดการชำระเงิน',
             style: TextStyle(
@@ -245,79 +168,38 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                           fit: BoxFit.fill,
                         ),
                       ),
-                      if (dataList[2]['PaymentStatus'] == 'กำลังตรวจสอบ') ...[
-                        Row(
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 150,
-                              margin: EdgeInsets.only(top: 30),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  alignment: Alignment.center,
-                                  backgroundColor: HexColor("#AD3B3B"),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40.0),
-                                  ),
-                                  minimumSize: Size(100, 40),
-                                ),
-                                child: Text(
-                                  'ปฏิเสธ',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                onPressed: () {
-                                  Notification_cancel();
-                                  UpdateReservationStatuse_Fail(
-                                      useruid: dataList[0]['UserID'],
-                                      reservationid: dataList[2]
-                                          ['ReservationId']);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              HomeAdminScreen()));
-                                },
-                              ),
+                      Container(
+                        height: 50,
+                        width: 150,
+                        margin: EdgeInsets.only(top: 30),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            alignment: Alignment.center,
+                            backgroundColor: HexColor("#5D5FEF"),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40.0),
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              height: 50,
-                              width: 150,
-                              margin: EdgeInsets.only(top: 30),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  alignment: Alignment.center,
-                                  backgroundColor: HexColor("#5D5FEF"),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40.0),
-                                  ),
-                                  minimumSize: Size(100, 40),
-                                ),
-                                child: Text(
-                                  'ถัดไป',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                onPressed: () {
-                                  Notification_confirm();
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => ConfirmPaymentScreen(
-                                  //             dataList[2]['ReservationId'],
-                                  //             dataList[1]['HousekeeperID'])));
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ConfirmPaymentScreen(dataList)));
-                                },
-                              ),
-                            )
-                          ],
+                            minimumSize: Size(100, 40),
+                          ),
+                          child: Text(
+                            'ถัดไป',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          onPressed: () {
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) => ConfirmPaymentScreen(
+                            //             dataList[2]['ReservationId'],
+                            //             dataList[1]['HousekeeperID'])));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ConfirmPaymentScreen(dataList)));
+                          },
                         ),
-                      ],
+                      )
                     ],
                   ),
                 )

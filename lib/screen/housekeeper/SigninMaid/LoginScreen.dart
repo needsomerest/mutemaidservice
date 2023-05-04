@@ -78,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               child: ElevatedButton(
                 onPressed: () {
-                  String phone = _controllerPhone.text.trim();
+                  String phone = _controllerPhone.text;
+                  print("ohha");
                   FirebaseFirestore.instance
                       .collection('Housekeeper')
                       .where('PhoneNumber', isEqualTo: phone)
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       .then((QuerySnapshot querySnapshot) {
                     if (querySnapshot.size != 0) {
                       querySnapshot.docs.forEach((doc) {
-                        if (doc['Pin'].toString() != "") {
+                        if (doc['Pin'] != "") {
                           Navigator.push(
                               context,
                               MaterialPageRoute(

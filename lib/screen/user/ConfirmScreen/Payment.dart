@@ -2,6 +2,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
 import 'package:mutemaidservice/model/Data/PaymentData.dart';
 import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
@@ -10,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmInfoScreen.dart';
 import 'package:mutemaidservice/screen/user/ConfirmScreen/ConfirmPayment.dart';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -18,12 +21,19 @@ class Payment extends StatefulWidget {
   ReservationData reservationData;
   PaymentData paymentdata;
   bool callby;
-
+  Housekeeper housekeeper;
+  AddressData addressdata;
+  int maxdistance;
+  String Reservation_Day;
   Payment(
       {Key? key,
       required this.reservationData,
       required this.paymentdata,
-      required this.callby})
+      required this.callby,
+      required this.Reservation_Day,
+      required this.addressdata,
+      required this.housekeeper,
+      required this.maxdistance})
       : super(key: key);
 
   @override
@@ -129,22 +139,26 @@ class _PaymentState extends State<Payment> {
           elevation: 0.0,
           backgroundColor: HexColor('#5D5FEF'),
           centerTitle: true,
-          leading:
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              //   }, child:
-              Icon(
-            Icons.keyboard_backspace,
-            color: Colors.white,
-            size: 30,
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ConfirmInfo(
+                          booked: false,
+                          housekeeper: widget.housekeeper,
+                          reservationData: widget.reservationData,
+                          button_cancel: true,
+                          addressdata: widget.addressdata,
+                          Reservation_Day: widget.Reservation_Day,
+                          maxdistance: widget.maxdistance)));
+            },
           ),
-          // ),
-          //  Icon(
-          //     Icons.keyboard_backspace,
-          //     color: Colors.white,
-          //   ),
           title: Text('การชำระเงินผ่านธนาคาร',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
@@ -292,6 +306,10 @@ class _PaymentState extends State<Payment> {
                                   reservationData: widget.reservationData,
                                   paymentdata: widget.paymentdata,
                                   callby: widget.callby,
+                                  addressdata: widget.addressdata,
+                                  Reservation_Day: widget.Reservation_Day,
+                                  housekeeper: widget.housekeeper,
+                                  maxdistance: widget.maxdistance,
                                 )));
                   },
                 ),

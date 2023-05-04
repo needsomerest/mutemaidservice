@@ -180,6 +180,7 @@ class _ChatMaidScreenState extends State<ChatMaidScreen> {
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0.0,
         backgroundColor: HexColor('#5D5FEF'),
         centerTitle: true,
