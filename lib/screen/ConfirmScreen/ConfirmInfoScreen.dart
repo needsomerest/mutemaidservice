@@ -1,10 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/InfoAddress.dart';
 import 'package:mutemaidservice/component/InfoBooking.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/BookingScreen/CancelBookingSuccess.dart';
 import 'package:mutemaidservice/screen/ConfirmScreen/ConfirmPayment.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -12,16 +19,40 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import '../../component/ProfileBar.dart';
 
 class ConfirmInfo extends StatefulWidget {
-  // const ConfirmInfo({super.key});
+  final ReservationData reservationData;
+  final Housekeeper housekeeper;
   bool booked;
-  ConfirmInfo(this.booked);
+  bool callby;
+  ConfirmInfo(
+      {Key? key,
+      required this.booked,
+      required this.housekeeper,
+      required this.reservationData,
+      required this.callby})
+      : super(key: key);
+  // const ConfirmInfo({super.key});
+
   @override
   State<ConfirmInfo> createState() => _ConfirmInfoState();
 }
 
 class _ConfirmInfoState extends State<ConfirmInfo> {
+  final User? user = Auth().currentUser;
+  bool _ischeck = true;
   @override
   Widget build(BuildContext context) {
+    final _uid = user?.uid;
+    String uid = _uid.toString();
+    widget.reservationData.TimeServiceDuration();
+    widget.reservationData.SetTimeEndService();
+    if (widget.booked == false && _ischeck) {
+      initializeDateFormatting('th');
+      DateTime dateTime = DateFormat("yyyy-MM-dd")
+          .parse(widget.reservationData.DateTimeService);
+      widget.reservationData.DateTimeService =
+          DateFormat.yMMMMd('th').format(dateTime);
+      _ischeck = false;
+    }
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
@@ -66,7 +97,9 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              InfoAddress(),
+              InfoAddress(
+                reservationData: widget.reservationData,
+              ),
               SizedBox(
                 height: 30,
               ),
@@ -78,7 +111,9 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              InfoBooking(),
+              InfoBooking(
+                reservationData: widget.reservationData,
+              ),
               if (widget.booked == false) ...[
                 Container(
                   height: 50,
@@ -102,13 +137,20 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ConfirmPayment(false)));
+                              /*edit here */
+                              builder: (context) => ConfirmPayment(
+                                    paid: false,
+                                    PaymentImage: '',
+                                    housekeeper: widget.housekeeper,
+                                    reservationData: widget.reservationData,
+                                  )));
                     },
                   ),
                 )
-              ] else ...[
+              ] else if (widget.booked == true && widget.callby == false) ...[
                 // InkWell(
                 // child:
+
                 Container(
                   height: 50,
                   width: 500,
@@ -127,7 +169,8 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
                       'ยกเลิก',
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    onPressed: () => _onAlertButtonPressed(context),
+                    onPressed: () => _onAlertButtonPressed(
+                        context, uid, widget.reservationData.BookingID),
                   ),
                 ),
                 //   onTap: () => _onAlertButtonPressed(context),
@@ -148,7 +191,7 @@ class _ConfirmInfoState extends State<ConfirmInfo> {
   }
 }
 
-_onAlertButtonPressed(BuildContext context) {
+_onAlertButtonPressed(BuildContext context, String userid, String bookingid) {
   Alert(
     context: context,
     type: AlertType.warning,
@@ -168,25 +211,35 @@ _onAlertButtonPressed(BuildContext context) {
     buttons: [
       DialogButton(
         child: Text(
+          "ยกเลิก",
+          style: TextStyle(color: Colors.black, fontSize: 18),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: HexColor('#BDBDBD').withOpacity(0.2),
+      ),
+      DialogButton(
+        child: Text(
           "ยืนยัน",
           style: TextStyle(
               color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
+          deletebooking(userid, bookingid);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => CancelBookingSuccess()));
         },
         color: HexColor('#5D5FEF'),
         // borderRadius: BorderRadius.all(Radius.circular(2.0),
       ),
-      DialogButton(
-        child: Text(
-          "ยกเลิก",
-          style: TextStyle(color: Colors.black, fontSize: 18),
-        ),
-        onPressed: () => Navigator.pop(context),
-        color: HexColor('#BDBDBD').withOpacity(0.2),
-      )
     ],
   ).show();
+}
+
+void deletebooking(String uid, String reservationid) async {
+  await FirebaseFirestore.instance
+      .collection('User')
+      .doc(uid)
+      .collection('Reservation')
+      .doc(reservationid)
+      .delete();
 }

@@ -1,25 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:geocode/geocode.dart';
 import 'package:intl/intl.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/screen/BookingScreen/BookingScreen.dart';
 
 class DropdownDay extends StatefulWidget {
-  const DropdownDay({Key? key}) : super(key: key);
+  final ReservationData reservationData;
+  DropdownDay({
+    Key? key,
+    required this.reservationData,
+  }) : super(key: key);
+
+  //const DropdownDay({Key? key}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<DropdownDay> {
-  TextEditingController dateInput = TextEditingController();
+  TextEditingController _dateInputController = TextEditingController();
 
   @override
   void initState() {
-    dateInput.text = ""; //set the initial value of text field
+    //set the initial value of text field
     super.initState();
   }
 
   String DateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
   @override
   Widget build(BuildContext context) {
+    String DateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     return Scaffold(
         body: Container(
             width: 200,
@@ -47,7 +61,7 @@ class _HomePageState extends State<DropdownDay> {
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.bold),
-                    controller: dateInput,
+                    controller: _dateInputController,
                     //editing controller of this TextField
                     decoration: InputDecoration(
                       border: InputBorder.none,
@@ -66,8 +80,7 @@ class _HomePageState extends State<DropdownDay> {
                       DateTime? pickedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
-                          firstDate: DateTime(1950),
-                          //DateTime.now() - not to allow to choose before today.
+                          firstDate: DateTime.now(),
                           lastDate: DateTime(2100));
 
                       if (pickedDate != null) {
@@ -78,8 +91,9 @@ class _HomePageState extends State<DropdownDay> {
                         print(
                             formattedDate); //formatted date output using intl package =>  2021-03-16
                         setState(() {
-                          dateInput.text =
-                              formattedDate; //set output date to TextField value.
+                          _dateInputController.text = formattedDate;
+                          widget.reservationData.DateTimeService =
+                              _dateInputController.text;
                         });
                       } else {}
                     },

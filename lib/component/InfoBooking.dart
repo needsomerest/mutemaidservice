@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/InfoAtom.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class InfoBooking extends StatelessWidget {
-  const InfoBooking({super.key});
+  ReservationData reservationData;
+  InfoBooking({Key? key, required this.reservationData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,12 @@ class InfoBooking extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: HexColor('#979797')),
           ),
-          InfoAtom(Icons.person, "คุณกนกพร สุขใจ", "0"),
+          InfoAtom(
+              Icons.person,
+              reservationData.HousekeeperFirstName +
+                  "  " +
+                  reservationData.HousekeeperLastName,
+              "0"),
           Text(
             'เวลาทำงาน',
             style: TextStyle(
@@ -39,10 +48,17 @@ class InfoBooking extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: HexColor('#979797')),
           ),
-          InfoAtom(Icons.calendar_month, "วันที่ใช้บริการ", "20 กันยายน 2022"),
-          InfoAtom(Icons.schedule, "เวลาที่ใช้บริการ", "12:30 - 14:30 น."),
-          InfoAtom(Icons.timelapse, "ระยะเวลาที่ให้บริการ", "2 ชม."),
-          InfoAtom(Icons.repeat, "แพ็กเกจ", "รายวัน"),
+          InfoAtom(Icons.calendar_month, "วันที่ใช้บริการ",
+              reservationData.DateTimeService),
+          InfoAtom(
+              Icons.schedule,
+              "เวลาที่ใช้บริการ",
+              reservationData.TimeStartService +
+                  " - " +
+                  reservationData.TimeEndService),
+          InfoAtom(Icons.timelapse, "ระยะเวลาที่ให้บริการ",
+              reservationData.Timeservice),
+          InfoAtom(Icons.repeat, "แพ็กเกจ", reservationData.Package),
           Text(
             'รายละเอียดงาน',
             style: TextStyle(
@@ -50,8 +66,8 @@ class InfoBooking extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: HexColor('#979797')),
           ),
-          InfoAtom(Icons.home, "ขนาดที่พัก", "80 - 120 ตรม."),
-          InfoAtom(Icons.pets, "สัตว์เลี้ยง", "สุนัข"),
+          InfoAtom(Icons.home, "ขนาดที่พัก", reservationData.sizeroom),
+          InfoAtom(Icons.pets, "สัตว์เลี้ยง", reservationData.Pet),
           Text(
             '*หมายเหตุ',
             style: TextStyle(
@@ -60,7 +76,7 @@ class InfoBooking extends StatelessWidget {
                 color: HexColor('#979797')),
           ),
           Text(
-            'โปรดทำความสะอาดเครื่องหนังอย่างระมัดระวัง',
+            reservationData.Note,
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,

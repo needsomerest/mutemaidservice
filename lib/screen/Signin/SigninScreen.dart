@@ -11,6 +11,9 @@ import 'package:mutemaidservice/model/AuthService/AuthGoogle.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/Signin/ForgotPasswordScreen.dart';
 import 'package:mutemaidservice/screen/UserScreen/Signup/SignupScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SigninScreen extends StatefulWidget {
   @override
@@ -18,12 +21,36 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
-  static const String _title = 'Sign In | MCS Service';
+  static const String _title = 'Sign In | Mute Maid Service';
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  User? get currentUser => _firebaseAuth.currentUser;
+  Stream<User?> get authStateChange => _firebaseAuth.authStateChanges();
+
   String? errorMessage = '';
   bool isLogin = true;
 
+  final snackLoginPasswordFail = SnackBar(
+    content: const Text('รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบข้อมูล'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  final snackLoginUnknowFail = SnackBar(
+    content: const Text('กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  final snackLoginEmailFail = SnackBar(
+    content: const Text('ไม่พบอีเมลดังกล่าวในระบบ กรุณาตรวจสอบข้อมูล'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+
+  void initState() {
+    _loadUserEmailPassword();
+    super.initState();
+  }
 
   Future<void> signInWithEmailAndPassword() async {
     try {
@@ -32,15 +59,19 @@ class _SigninScreenState extends State<SigninScreen> {
         password: _controllerPassword.text,
       );
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        errorMessage = e.message;
-      });
+      if (e.code == 'user-not-found') {
+        print('ไม่พบอีเมลดังกล่าวในระบบ กรุณาตรวจสอบข้อมูล');
+      } else if (e.code == 'wrong-password') {
+        print('รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบข้อมูล');
+      } else {
+        print('Failed with error code: ${e.code}');
+      }
     }
   }
 
   bool value = false;
   bool _isObscure = true;
-  bool shouldCheck = false;
+  bool RemembermeCheck = false;
 
   get alignment => null;
 
@@ -53,7 +84,7 @@ class _SigninScreenState extends State<SigninScreen> {
             child: Column(children: [
               Container(
                 alignment: FractionalOffset.topLeft,
-                child: HeaderAccount("Login to your Account", 40, "#000000"),
+                child: HeaderAccount("เข้าสู่ระบบ", 40, "#000000"),
               ),
               const SizedBox(height: 30),
               Container(
@@ -69,7 +100,7 @@ class _SigninScreenState extends State<SigninScreen> {
                             Icons.email,
                             color: Colors.black,
                           ),
-                          hintText: 'Email',
+                          hintText: 'อีเมล',
                           hintStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(6.0),
@@ -104,7 +135,7 @@ class _SigninScreenState extends State<SigninScreen> {
                             Icons.lock,
                             color: Colors.black,
                           ),
-                          hintText: 'Password',
+                          hintText: 'รหัสผ่าน',
                           hintStyle: TextStyle(fontSize: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(6.0),
@@ -145,22 +176,17 @@ class _SigninScreenState extends State<SigninScreen> {
                 children: <Widget>[
                   Spacer(),
                   CustomCheckBox(
-                    value: shouldCheck,
+                    value: RemembermeCheck,
                     shouldShowBorder: true,
                     borderColor: HexColor("#5D5FEF"),
                     checkedFillColor: HexColor("#5D5FEF"),
                     borderRadius: 6,
                     borderWidth: 1,
                     checkBoxSize: 20,
-                    onChanged: (val) {
-                      //do your stuff here
-                      setState(() {
-                        shouldCheck = val;
-                      });
-                    },
+                    onChanged: _handleRemeberme,
                   ),
                   Text(
-                    "Remember me",
+                    "จดจำฉันในระบบ",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
                   ),
                   Spacer(),
@@ -169,14 +195,37 @@ class _SigninScreenState extends State<SigninScreen> {
               const SizedBox(height: 12),
               Container(
                 child: ElevatedButton(
-                  onPressed: () {
-                    signInWithEmailAndPassword();
+                  onPressed: () async {
+                    try {
+                      final userCredential =
+                          await _firebaseAuth.signInWithEmailAndPassword(
+                              email: _controllerEmail.text.trim(),
+                              password: _controllerPassword.text.trim());
+                    } on FirebaseAuthException catch (e) {
+                      if (e.code == 'user-not-found') {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(snackLoginEmailFail);
+                      } else if (e.code == 'wrong-password') {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(snackLoginPasswordFail);
+                      } else if (e.code == 'unknown') {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(snackLoginUnknowFail);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text('Failed with error code: ${e.code}')));
+                      }
+                    }
+
+                    //signInWithEmailAndPassword();
                     /*Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => HomeScreen()),
                   );*/
                   },
-                  child: const Text('Sign in', style: TextStyle(fontSize: 18)),
+                  child:
+                      const Text('เข้าสู่ระบบ', style: TextStyle(fontSize: 18)),
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(HexColor("5D5FEF")),
@@ -192,7 +241,7 @@ class _SigninScreenState extends State<SigninScreen> {
               const SizedBox(height: 10),
               GestureDetector(
                 child: Text(
-                  'Forgot the password?',
+                  'ลืมรหัสผ่าน?',
                   style: TextStyle(
                       color: HexColor("#5D5FEF"),
                       fontSize: 16,
@@ -202,7 +251,7 @@ class _SigninScreenState extends State<SigninScreen> {
                     builder: (context) => ForgotPasswordScreen())),
               ),
               const SizedBox(height: 30),
-              DividerAccount("or continue with", 10),
+              DividerAccount("หรือดำเนินการต่อด้วย", 10),
               const SizedBox(height: 10),
               Container(
                 child: ButtonBar(
@@ -237,11 +286,49 @@ class _SigninScreenState extends State<SigninScreen> {
               ),
               const SizedBox(height: 30),
               BottomSignin(
-                  "Don’t have an account?    ", "#000000", "Sign up", "#5D5FEF")
+                  "ยังไม่มีบัญชี?    ", "#000000", "ลงทะเบียนผู้ใช้", "#5D5FEF")
             ]),
           ),
         ),
       );
+
+  void _handleRemeberme(bool value) {
+    print("Handle Rember Me");
+    RemembermeCheck = value;
+    SharedPreferences.getInstance().then(
+      (prefs) {
+        prefs.setBool("remember_me", value);
+        prefs.setString('email', _controllerEmail.text);
+        prefs.setString('password', _controllerPassword.text);
+      },
+    );
+    setState(() {
+      RemembermeCheck = value;
+    });
+  }
+
+  void _loadUserEmailPassword() async {
+    print("Load Email");
+    try {
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      var _email = _prefs.getString("email") ?? "";
+      var _password = _prefs.getString("password") ?? "";
+      var _remeberMe = _prefs.getBool("remember_me") ?? false;
+
+      print(_remeberMe);
+      print(_email);
+      print(_password);
+      if (_remeberMe) {
+        setState(() {
+          RemembermeCheck = true;
+        });
+        _controllerEmail.text = _email ?? '';
+        _controllerPassword.text = _password ?? '';
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }
 
 class BottomSignin extends StatelessWidget {

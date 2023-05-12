@@ -5,23 +5,40 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/component/InfoPrice.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/PaymentData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/screen/BookingScreen/Success.dart';
 import 'package:mutemaidservice/screen/ConfirmScreen/Payment.dart';
 
 import '../../component/ProfileBar.dart';
 
 class ConfirmPayment extends StatefulWidget {
-  // const ConfirmPayment({super.key});
   bool paid;
-  ConfirmPayment(this.paid);
+  ReservationData reservationData;
+  Housekeeper housekeeper;
+  String PaymentImage;
+  ConfirmPayment(
+      {Key? key,
+      required this.PaymentImage,
+      required this.paid,
+      required this.housekeeper,
+      required this.reservationData})
+      : super(key: key);
 
   @override
   State<ConfirmPayment> createState() => _ConfirmPaymentState();
 }
 
+final snackPaymentFail = SnackBar(
+  content: const Text('กรุณาอัพโหลดหลักฐานการชำระเงิน'),
+  backgroundColor: HexColor("#5D5FEF"),
+);
+
 class _ConfirmPaymentState extends State<ConfirmPayment> {
   @override
   Widget build(BuildContext context) {
+    final newPayment = PaymentData(widget.PaymentImage, "กำลังตรวจสอบ", 0);
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
@@ -39,7 +56,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
       body: SingleChildScrollView(
         child: Container(
           width: 500,
-          height: 700,
+          height: 720,
           decoration: BoxDecoration(
               color: HexColor('#FFFFFF'),
               borderRadius: BorderRadius.only(
@@ -117,8 +134,13 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Payment()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Payment(
+                                housekeeper: widget.housekeeper,
+                                reservationData: widget.reservationData,
+                              )));
                 },
               ),
               Container(
@@ -140,8 +162,19 @@ class _ConfirmPaymentState extends State<ConfirmPayment> {
                     style: TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Success()));
+                    if (widget.PaymentImage == '') {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(snackPaymentFail);
+                    } else {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Success(
+                                    paymentData: newPayment,
+                                    reservationData: widget.reservationData,
+                                    housekeeper: widget.housekeeper,
+                                  )));
+                    }
                   },
                 ),
               )

@@ -4,7 +4,8 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
-  const VideoPlayerScreen({super.key});
+  String urlvideo;
+  VideoPlayerScreen(this.urlvideo);
   // String Url;
   // VideoPlayerScreen(this.Url);
 
@@ -39,7 +40,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     // offers several different constructors to play videos from assets, files,
     // or the internet.
     _controller = VideoPlayerController.network(
-      'https://firebasestorage.googleapis.com/v0/b/mutecareservice-app.appspot.com/o/SignVideo%2Fexample.mp4?alt=media&token=06c89099-13eb-4313-9ebb-96ca88f30b21',
+      widget.urlvideo,
     );
 
     // Initialize the controller and store the Future for later use.

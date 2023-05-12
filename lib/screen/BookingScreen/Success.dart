@@ -1,13 +1,69 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/main.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/PaymentData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/ConfirmScreen/Payment.dart';
 import 'package:mutemaidservice/screen/HomeScreen.dart';
 
 class Success extends StatelessWidget {
-  const Success({super.key});
+  ReservationData reservationData;
+  PaymentData paymentData;
+  Housekeeper housekeeper;
+  Success(
+      {Key? key,
+      required this.paymentData,
+      required this.housekeeper,
+      required this.reservationData})
+      : super(key: key);
+  final User? user = Auth().currentUser;
+
+  Future SetReservation(String userid) async {
+    CollectionReference users = FirebaseFirestore.instance
+        .collection('User')
+        .doc(userid)
+        .collection('Reservation');
+    DocumentReference newDocRef =
+        users.doc(); // generates a new DocumentReference with a unique ID
+    String newDocId = newDocRef.id; // gets the ID of the new document
+    await newDocRef.set(reservationData.CreateReservationtoJson());
+
+    // CollectionReference User = FirebaseFirestore.instance
+    //     .collection('User')
+    //     .doc(userid)
+    //     .collection('Reservation');
+    // DocumentReference newDocRef =
+    //     User.doc(); // generates a new DocumentReference with a unique ID
+    // String newDocId = newDocRef.id; // gets the ID of the new document
+    // await newDocRef.set(reservationData.CreateReservationtoJson());
+
+    // await FirebaseFirestore.instance
+    //     .collection('User')
+    //     .doc(uid)
+    //     .collection('Reservation')
+    //     .doc(newDocId)
+    //     .collection('Address')
+    //     .doc()
+    //     .set(reservationData.CreateAddressReservationtoJson());
+
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(userid)
+        .collection('Reservation')
+        .doc(newDocId)
+        .collection('Payment')
+        .doc()
+        .set(paymentData.CreatePaymenttoJson());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final _uid = user?.uid;
     return Scaffold(
         backgroundColor: HexColor('#5D5FEF'),
         appBar: AppBar(
@@ -18,7 +74,7 @@ class Success extends StatelessWidget {
         body: SingleChildScrollView(
           child: Container(
             width: double.infinity,
-            height: 700,
+            height: 730,
             // constraints: BoxConstraints(maxWidth: 300),
             decoration: BoxDecoration(
                 color: HexColor('#FFFFFF'),
@@ -62,11 +118,11 @@ class Success extends StatelessWidget {
                         'กลับ',
                         style: TextStyle(fontSize: 16),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                      onPressed: () async {
+                        SetReservation(_uid.toString());
+
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => MyApp()));
                       },
                     ),
                   )

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:geocode/geocode.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+
+typedef OnChangeCallback = void Function(dynamic value);
 
 class DropdownArea extends StatefulWidget {
-  const DropdownArea({Key? key}) : super(key: key);
+  final AddressData addressData;
+  DropdownArea({Key? key, required this.addressData}) : super(key: key);
 
-  // FormBooking({List<String> items}) : this.items = items ?? [];
-  // final List<String> items;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -32,12 +35,6 @@ class _MyHomePageState extends State<DropdownArea> {
               decoration: BoxDecoration(
                 color: HexColor("E6E6E6"),
                 borderRadius: BorderRadius.circular(30),
-                // boxShadow: <BoxShadow>[
-                //   BoxShadow(
-                //       color:
-                //           Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
-                //       blurRadius: 5) //blur radius of shadow
-                // ]
               ),
               child: Padding(
                 padding: EdgeInsets.only(left: 30, right: 30),
@@ -64,6 +61,7 @@ class _MyHomePageState extends State<DropdownArea> {
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownvalue = newValue!;
+                      widget.addressData.SizeRoom = dropdownvalue;
                     });
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),

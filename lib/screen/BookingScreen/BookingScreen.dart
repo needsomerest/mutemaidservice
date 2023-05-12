@@ -1,29 +1,121 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocode/geocode.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:mutemaidservice/component/DropdownPet.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/ConfirmScreen/ConfirmInfoScreen.dart';
 import 'package:mutemaidservice/screen/MaidScreen/MaidScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import '../../component/DropdownDay.dart';
-import '../../component/DropdownPeriod.dart';
-import '../../component/DropdownTime.dart';
-import '../../component/Dropdownpackage.dart';
-import '../../component/NoteSelect.dart';
-import '../../component/Stepbar.dart';
+import '../../../component/DropdownDay.dart';
+import '../../../component/DropdownPeriod.dart';
+import '../../../component/DropdownTime.dart';
+import '../../../component/Dropdownpackage.dart';
+import '../../../component/NoteSelect.dart';
+import '../../../component/Stepbar.dart';
 import '../PlaceScreen/MyplaceScreen.dart';
 import 'PackageDetail.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookingScreen extends StatefulWidget {
-  final bool home;
+  final ReservationData reservationData;
+  final AddressData addressData;
+  final Housekeeper housekeeper;
+  BookingScreen(
+      {Key? key,
+      required this.reservationData,
+      required this.addressData,
+      required this.housekeeper})
+      : super(key: key);
+
   List<String> package = ["รายเดือน"];
-  BookingScreen(this.home);
 
   @override
   MyRecordState createState() => MyRecordState();
 }
 
 class MyRecordState extends State<BookingScreen> {
+  final User? user = Auth().currentUser;
+
+  _onAlertButtonPressed(BuildContext context) {
+    Alert(
+      context: context,
+      type: AlertType.warning,
+      title: "ยืนยันการจองในระยะยาว",
+      desc:
+          "หากทำการยืนยันการจอง แม่บ้านจะเข้าไปทำความสะอาดให้ท่านในเวลาเดิมที่ท่านได้เลือกไว้",
+      style: AlertStyle(
+        titleStyle: TextStyle(
+          // color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        descStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+      ),
+      buttons: [
+        DialogButton(
+          child: Text(
+            "ยกเลิก",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          onPressed: () => Navigator.pop(context),
+          color: HexColor('#BDBDBD').withOpacity(0.2),
+        ),
+        DialogButton(
+          child: Text(
+            "ยืนยัน",
+            style: TextStyle(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MaidScreen(
+                          housekeeper: widget.housekeeper,
+                          reservationData: widget.reservationData,
+                        )));
+          },
+          color: HexColor('#5D5FEF'),
+          // borderRadius: BorderRadius.all(Radius.circular(2.0),
+        ),
+      ],
+    ).show();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _uid = user?.uid;
+    String uid = _uid.toString();
+
+    if (widget.addressData.AddressID == "AddressID") {
+      widget.reservationData.AddressID = widget.addressData.AddressID;
+      widget.reservationData.addressName = widget.addressData.Address;
+      widget.reservationData.addresstype = widget.addressData.Type;
+      widget.reservationData.addressDetail = widget.addressData.AddressDetail;
+      widget.reservationData.addressImage = widget.addressData.Addressimage;
+      widget.reservationData.sizeroom = widget.addressData.SizeRoom;
+      widget.reservationData.AddressPoint = widget.addressData.point;
+      widget.reservationData.PhoneNumber = widget.addressData.Phonenumber;
+    }
+
+    if (widget.reservationData.HousekeeperID.isNotEmpty) {
+      widget.reservationData.HousekeeperID = widget.housekeeper.HousekeeperID;
+      widget.reservationData.HousekeeperFirstName =
+          widget.housekeeper.FirstName;
+      widget.reservationData.HousekeeperLastName = widget.housekeeper.LastName;
+    }
+
     return Scaffold(
         backgroundColor: HexColor('#5D5FEF'),
         appBar: AppBar(
@@ -52,7 +144,7 @@ class MyRecordState extends State<BookingScreen> {
         body: SingleChildScrollView(
             child: Container(
                 width: double.infinity,
-                height: 900,
+                height: 1200,
                 // constraints: BoxConstraints(maxWidth: 300),
                 decoration: BoxDecoration(
                     color: HexColor('#FFFFFF'),
@@ -63,7 +155,28 @@ class MyRecordState extends State<BookingScreen> {
                   // mainAxisAlignment: MainAxisAlignment.start,
                   // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (widget.home == false) ...[
+                    /*Container(
+                      child: Column(
+                        children: [
+                          if (widget
+                              .reservationData.HousekeeperID.isNotEmpty) ...[
+                            Container(
+                              width: 300.0,
+                              margin: EdgeInsets.only(top: 30),
+                              child: stepbar(1),
+                            ),
+                          ] else ...{
+                            Container(
+                              width: 300.0,
+                              margin: EdgeInsets.only(top: 30),
+                              child: stepbar(1),
+                            ),
+                          }
+                        ],
+                      ),
+                    ),*/
+
+                    if (widget.addressData.AddressID == "AddressID") ...[
                       Container(
                         width: 300.0,
                         margin: EdgeInsets.only(top: 30),
@@ -118,7 +231,11 @@ class MyRecordState extends State<BookingScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => Myplace(
-                                      [1, 2, 3, 5, 4, 6, 8, 8, 8], true)));
+                                        book: true,
+                                        reservationData: widget.reservationData,
+                                        addressData: widget.addressData,
+                                        housekeeper: widget.housekeeper,
+                                      )));
                         },
                       ),
                     ] else ...[
@@ -140,19 +257,30 @@ class MyRecordState extends State<BookingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              "assets/images/home.png",
-                              height: 70,
-                              width: 70,
-                            ),
+                            if (widget.addressData.Type == 'condo') ...[
+                              Image.asset(
+                                "assets/images/condo.png",
+                                height: 70,
+                                width: 70,
+                              )
+                            ] else ...[
+                              Image.asset(
+                                "assets/images/home.png",
+                                height: 70,
+                                width: 70,
+                              )
+                            ],
                             Text(
-                              'บ้านที่บางมด',
+                              widget.reservationData
+                                  .addressName /*widget.addressName*/,
                               style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: HexColor('#06161C')),
                             ),
-                            Text('ทาว์นโฮม/บ้านเดี่ยว',
+                            Text(
+                                widget.reservationData
+                                    .addresstype /*widget.addresstype*/,
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -210,6 +338,7 @@ class MyRecordState extends State<BookingScreen> {
                     //     ),
                     //   ),
                     // ),
+
                     Container(
                       height: 70,
                       width: 500,
@@ -237,7 +366,9 @@ class MyRecordState extends State<BookingScreen> {
                           Container(
                             alignment: Alignment.centerRight,
                             width: 200,
-                            child: DropdownDay(),
+                            child: DropdownDay(
+                              reservationData: widget.reservationData,
+                            ),
                           ),
                         ],
                       ),
@@ -270,7 +401,9 @@ class MyRecordState extends State<BookingScreen> {
                             alignment: Alignment.centerRight,
                             width: 150,
                             height: 40,
-                            child: DropdownTime(),
+                            child: DropdownTime(
+                              reservationData: widget.reservationData,
+                            ),
                           ),
                         ],
                       ),
@@ -306,7 +439,9 @@ class MyRecordState extends State<BookingScreen> {
                             margin: EdgeInsets.only(bottom: 10),
                             width: 170,
                             height: 50,
-                            child: DropdownPeriod(),
+                            child: DropdownPeriod(
+                              reservationData: widget.reservationData,
+                            ),
                           ),
                         ],
                       ),
@@ -355,16 +490,58 @@ class MyRecordState extends State<BookingScreen> {
                                       builder: (context) => PackageDetail()));
                             },
                           ),
-                          SizedBox(width: 50),
+                          SizedBox(
+                            width: 70,
+                          ),
                           Container(
                             alignment: Alignment.centerRight,
                             width: 170,
                             height: 40,
-                            child: DropdownPackage(),
-                          )
+                            child: DropdownPackage(
+                              reservationData: widget.reservationData,
+                            ),
+                          ),
                         ],
                       ),
                     ),
+                    
+                    SizedBox(width: 50),
+                    Container(
+                      height: 50,
+                      width: 500,
+                      alignment: Alignment.topLeft,
+                      margin: EdgeInsets.only(left: 20, right: 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.pets,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'สัตว์เลี้ยงในสถานที่',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: HexColor('#06161C')),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            alignment: Alignment.centerRight,
+                            width: 150,
+                            height: 40,
+                            child: DropdownPet(
+                              reservationData: widget.reservationData,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     Row(
                       children: [
                         SizedBox(width: 25),
@@ -390,7 +567,9 @@ class MyRecordState extends State<BookingScreen> {
                       margin: EdgeInsets.only(bottom: 30, top: 20),
                       width: 400,
                       height: 40,
-                      child: NoteSelect(),
+                      child: NoteSelect(
+                        reservationData: widget.reservationData,
+                      ),
                     ),
                     Container(
                       height: 50,
@@ -410,17 +589,41 @@ class MyRecordState extends State<BookingScreen> {
                           'ถัดไป',
                           style: TextStyle(fontSize: 16),
                         ),
-                        onPressed: () {
-                          if (widget.home == false) {
+                        onPressed: () async {
+                          if (widget.reservationData.AddressID == "") {
                             _onAlertButtonPressedError(context);
                           } else {
-                            if (widget.package == "ครั้งเดียว") {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MaidScreen(false)));
+                            if (widget
+                                .reservationData.HousekeeperID.isNotEmpty) {
+                              if (widget.reservationData.Package ==
+                                  "ครั้งเดียว") {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ConfirmInfo(
+                                              booked: false,
+                                              reservationData:
+                                                  widget.reservationData,
+                                              housekeeper: widget.housekeeper,
+                                              callby: false,
+                                            )));
+                              } else {
+                                _onAlertButtonPressed(context);
+                              }
                             } else {
-                              _onAlertButtonPressed(context);
+                              if (widget.reservationData.Package ==
+                                  "ครั้งเดียว") {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => MaidScreen(
+                                              reservationData:
+                                                  widget.reservationData,
+                                              housekeeper: widget.housekeeper,
+                                            )));
+                              } else {
+                                _onAlertButtonPressed(context);
+                              }
                             }
                           }
                         },
@@ -457,50 +660,6 @@ _onAlertButtonPressedError(BuildContext context) {
         onPressed: () => Navigator.pop(context),
         width: 120,
         color: HexColor('#5D5FEF'),
-      )
-    ],
-  ).show();
-}
-
-_onAlertButtonPressed(BuildContext context) {
-  Alert(
-    context: context,
-    type: AlertType.warning,
-    title: "ยืนยันการจองในระยะยาว",
-    desc:
-        "หากทำการยืนยันการจอง แม่บ้านจะเข้าไปทำความสะอาดให้ท่านในเวลาเดิมที่ท่านได้เลือกไว้",
-    style: AlertStyle(
-      titleStyle: TextStyle(
-        // color: Colors.red,
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
-      ),
-      descStyle: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 16,
-      ),
-    ),
-    buttons: [
-      DialogButton(
-        child: Text(
-          "ยืนยัน",
-          style: TextStyle(
-              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => MaidScreen(true)));
-        },
-        color: HexColor('#5D5FEF'),
-        // borderRadius: BorderRadius.all(Radius.circular(2.0),
-      ),
-      DialogButton(
-        child: Text(
-          "ยกเลิก",
-          style: TextStyle(color: Colors.black, fontSize: 18),
-        ),
-        onPressed: () => Navigator.pop(context),
-        color: HexColor('#BDBDBD').withOpacity(0.2),
       )
     ],
   ).show();

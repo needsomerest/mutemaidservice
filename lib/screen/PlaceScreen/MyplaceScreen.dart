@@ -1,14 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:mutemaidservice/component/PlaceAtom.dart';
+import 'package:mutemaidservice/component/PlaceGrid.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
+import 'package:mutemaidservice/screen/BookingScreen/BookingScreen.dart';
 import '../BookingScreen/MyBooking.dart';
 import 'AddPlaceScreen.dart';
 import '../../component/Stepbar.dart';
 
 class Myplace extends StatefulWidget {
-  List<int> place;
   bool book;
-  Myplace(this.place, this.book);
+  final ReservationData reservationData;
+  final AddressData addressData;
+  final Housekeeper housekeeper;
+  Myplace(
+      {Key? key,
+      required this.book,
+      required this.reservationData,
+      required this.addressData,
+      required this.housekeeper})
+      : super(key: key);
+
+  // List<int> place;
+
   // const Myplace({super.key});
 
   @override
@@ -16,6 +36,23 @@ class Myplace extends StatefulWidget {
 }
 
 class _MyplaceState extends State<Myplace> {
+  final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
+      "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
+
+  final newAddress = AddressData(
+      "AddressID",
+      "Addressimage",
+      "Type",
+      "SizeRoom",
+      "Address",
+      "AddressDetail",
+      "Province",
+      "District",
+      "Phonenumber",
+      "Note",
+      "User",
+      GeoPoint(0, 0));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +83,7 @@ class _MyplaceState extends State<Myplace> {
         body: SingleChildScrollView(
           child: Container(
             width: double.infinity,
-            height: 700,
+            height: 900,
             // constraints: BoxConstraints(maxWidth: 300),
             decoration: BoxDecoration(
                 color: HexColor('#FFFFFF'),
@@ -65,26 +102,20 @@ class _MyplaceState extends State<Myplace> {
                   height: 30,
                 )
               ],
-              if (widget.place.length >= 1) ...[
-                Container(
-                  width: 400,
-                  height: 500,
-                  // height: widget.place.length % 2 == 0
-                  //     ? widget.place.length * 100
-                  //     : (widget.place.length + 1) * 100,
-                  child: GridView.count(
-                    primary: false,
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    crossAxisCount: 2,
-                    children: <Widget>[
-                      for (var place in widget.place)
-                        PlaceAtom("บ้านที่บางมด", "assets/images/ex.home.jpg"),
-                    ],
-                  ),
-                )
-              ],
+              // if (widget.place.length >= 1) ...[
+              Container(
+                width: 400,
+                height: 500,
+                // height: widget.place.length % 2 == 0
+                //     ? widget.place.length * 100
+                //     : (widget.place.length + 1) * 100,
+                child: PlaceGrid(
+                  reservationData: widget.reservationData,
+                  addressData: widget.addressData,
+                  housekeeper: widget.housekeeper,
+                ),
+              ),
+              // ],
               Container(
                 height: 50,
                 width: 500,
@@ -115,100 +146,15 @@ class _MyplaceState extends State<Myplace> {
                   onPressed: () {
                     Navigator.push(
                         context,
-                        // MaterialPageRoute(builder: (context) => Addpace()));
                         MaterialPageRoute(
-                            builder: (context) => Addplace(false)));
+                            builder: (context) => widget.book == false
+                                ? Addplace(false, false, "")
+                                : Addplace(true, false, "")));
                   },
                 ),
-              )
+              ),
             ]),
           ),
         ));
   }
 }
-// class Myplace extends StatelessWidget {
-//   const Myplace({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         backgroundColor: HexColor('#5D5FEF'),
-//         appBar: AppBar(
-//           elevation: 0.0,
-//           backgroundColor: HexColor('#5D5FEF'),
-//           centerTitle: true,
-//           leading:
-//               // GestureDetector(
-//               //   onTap: () {
-//               //     Navigator.push(
-//               //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-//               //   }, child:
-//               Icon(
-//             Icons.keyboard_backspace,
-//             color: Colors.white,
-//             size: 30,
-//           ),
-//           // ),
-//           //  Icon(
-//           //     Icons.keyboard_backspace,
-//           //     color: Colors.white,
-//           //   ),
-//           title: Text('สถานที่ของฉัน',
-//               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//         ),
-//         body: SingleChildScrollView(
-//           child: Container(
-//             width: double.infinity,
-//             height: 730,
-//             // constraints: BoxConstraints(maxWidth: 300),
-//             decoration: BoxDecoration(
-//                 color: HexColor('#FFFFFF'),
-//                 borderRadius: BorderRadius.only(
-//                     topRight: Radius.circular(30),
-//                     topLeft: Radius.circular(30))),
-//             child: Column(children: [
-//               Container(
-//                 width: 300.0,
-//                 margin: EdgeInsets.only(top: 30),
-//                 child: stepbar(2),
-//               ),
-//               Container(
-//                 height: 50,
-//                 width: 500,
-//                 alignment: Alignment.center,
-//                 margin: EdgeInsets.only(top: 50),
-//                 child: ElevatedButton.icon(
-//                   icon: Icon(
-//                     Icons.add,
-//                     color: Colors.white,
-//                     size: 30.0,
-//                   ),
-//                   label: Text(
-//                     'เพิ่มสถานที่ใช้บริการ',
-//                     style: TextStyle(fontSize: 20),
-//                   ),
-//                   style: ElevatedButton.styleFrom(
-//                     alignment: Alignment.center,
-//                     backgroundColor: HexColor("#5D5FEF"),
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(40.0),
-//                     ),
-//                     minimumSize: Size(100, 40),
-//                   ),
-//                   // child: Text(
-//                   //   'เพิ่มสถานที่ใช้บริการ',
-//                   //   style: TextStyle(fontSize: 16),
-//                   // ),
-//                   onPressed: () {
-//                     Navigator.push(
-//                         context,
-//                         // MaterialPageRoute(builder: (context) => Addpace()));
-//                         MaterialPageRoute(builder: (context) => Addplace()));
-//                   },
-//                 ),
-//               )
-//             ]),
-//           ),
-//         ));
-//   }
-// }

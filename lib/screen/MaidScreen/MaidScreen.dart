@@ -1,23 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
+import 'package:mutemaidservice/component/FavMaidList.dart';
 import 'package:mutemaidservice/component/MaidDetail.dart';
+import 'package:mutemaidservice/component/MaidList.dart';
 import 'package:mutemaidservice/component/Stepbar.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/MaidScreen/MaidDetailScreen.dart';
 
 class MaidScreen extends StatefulWidget {
   // const MaidScreen({super.key});
-  bool fav = false;
+  final ReservationData reservationData;
+  final Housekeeper housekeeper;
 
-  MaidScreen(bool bool);
+  MaidScreen(
+      {Key? key, required this.reservationData, required this.housekeeper})
+      : super(key: key);
+
+  bool fav = false;
 
   @override
   State<MaidScreen> createState() => _MaidScreenState();
 }
 
 class _MaidScreenState extends State<MaidScreen> {
+  final User? user = Auth().currentUser;
+
   @override
   Widget build(BuildContext context) {
+    final _uid = user?.uid;
+
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
@@ -45,7 +63,8 @@ class _MaidScreenState extends State<MaidScreen> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          width: 400,
+          margin: EdgeInsets.only(top: 12),
+          width: 600,
           height: 1000,
           // constraints: BoxConstraints(maxWidth: 300),
           decoration: BoxDecoration(
@@ -153,28 +172,30 @@ class _MaidScreenState extends State<MaidScreen> {
                   ),
                 ),
               ),
-              InkWell(
-                child: Container(
-                  height: 300,
-                  child: MaidDetail(
-                      "คุณกนกพร สุขใจ",
-                      "assets/images/profilemaid.png",
-                      3,
-                      4,
-                      2,
-                      3,
-                      2.15,
-                      "ภาษามือ, การเขียน, ล่าม",
-                      widget.fav,
-                      false),
+              SizedBox(
+                height: 10,
+              ),
+              if (widget.fav == false) ...[
+                Container(
+                  height: 620,
+                  child: MaidList(
+                    booked: false,
+                    userID: _uid.toString(),
+                    reservationData: widget.reservationData,
+                    housekeeper: widget.housekeeper,
+                  ),
+                )
+              ] else ...[
+                Container(
+                  height: 620,
+                  child: FavMaidList(
+                      booked: false,
+                      userID: _uid.toString(),
+                      reservationData: widget.reservationData,
+                      callby: 'book',
+                      housekeeper: widget.housekeeper),
                 ),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MaidDetailScreen(widget.fav)));
-                },
-              )
+              ]
             ]),
             width: 400,
             height: 700,

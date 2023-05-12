@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -19,6 +19,8 @@ import 'package:mutemaidservice/model/AuthService/AuthGoogle.dart';
 import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/Signin/SigninScreen.dart';
 import 'package:path/path.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:validators/validators.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -26,12 +28,13 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  static const String _title = 'Sign Up | MCS Service';
-
+  static const String _title = 'Sign Up | Mute Maid Service';
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   String? errorMessages = '';
-  String? imageurl;
-  String _emailAddress = '';
+  String imageurl =
+      'https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/UserImage%2Fprofile.png?alt=media&token=71e218a0-8801-4cf4-bdd6-2b5b91fdd88c';
   String _password = '';
+  String _uid = '';
 
   final TextEditingController _controllersEmail = TextEditingController();
   final TextEditingController _controllersPassword = TextEditingController();
@@ -80,17 +83,20 @@ class _SignupScreenState extends State<SignupScreen> {
         });
   }
 
-  Future createUser(
-      {required String? profileimage,
-      required String email,
-      required String password,
-      required String firstname,
-      required String lastname,
-      required String dob,
-      required String phonenumber,
-      required String region,
-      required gender}) async {
-    final docUser = await FirebaseFirestore.instance.collection('User').doc();
+  Future createUser({
+    required String useruid,
+    required String profileimage,
+    required String email,
+    required String password,
+    required String firstname,
+    required String lastname,
+    required String dob,
+    required String phonenumber,
+    required String gender,
+    required String region,
+  }) async {
+    final docUser =
+        await FirebaseFirestore.instance.collection('User').doc(useruid);
 
     final json = {
       'UserID': docUser.id,
@@ -101,23 +107,56 @@ class _SignupScreenState extends State<SignupScreen> {
       'DateOfBirth': dob,
       'PhoneNumber': phonenumber,
       'profileImage': profileimage,
+      'Gender': gender,
       'Region': region,
     };
-
     await docUser.set(json);
-    createUserWithEmailAndPassword();
+
+    //createUserWithEmailAndPassword(firstname, lastname, profileimage,phonenumber);
   }
 
-  Future<void> createUserWithEmailAndPassword() async {
+  final snackInvalidEmailFail = SnackBar(
+    content: const Text('กรุณากรอกรูปแบบอีเมลให้ถูกต้อง'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  final snackBarEmailAlreadyInuseFail = SnackBar(
+    content: const Text('อีเมลดังกล่าวได้ถูกใช้งานแล้ว'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  final snackBarPasswordFail = SnackBar(
+    content: const Text('กรุณาตั้งรหัสผ่านมากกว่า 6 ตัวขึ้นไป'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+  final snackBarSubmitFail = SnackBar(
+    content: const Text('กรุณากรอกข้อมูลทุกช่องเพื่อเพื่อลงทะเบียนผู้ใช้'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+  final snackInvalidPhoneNumberFail = SnackBar(
+    content: const Text('เบอร์โทรดังกล่าวได้ถูกใช้งานแล้ว'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  Future<void> createUserWithEmailAndPassword(
+    String firstname,
+    String lastname,
+    String profileimage,
+    String phonenumber,
+  ) async {
     try {
-      await Auth().createUserWithEmailAndPassword(
-        email: _controllersEmail.text,
-        password: _controllersPassword.text,
-      );
+      final UserCredential = await Auth().createUserWithEmailAndPassword(
+          email: _controllersEmail.text.trim(),
+          password: _controllersPassword.text.trim(),
+          username: firstname + ' ' + lastname,
+          img: profileimage);
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        errorMessages = e.message;
-      });
+      if (e.code == 'weak-password') {
+      } else if (e.code == 'email-already-in-use') {
+        print('อีเมลดังกล่าวได้ถูกใช้งานแล้ว');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -135,7 +174,7 @@ class _SignupScreenState extends State<SignupScreen> {
         _photo = File(pickedFile.path);
         uploadFile();
       } else {
-        print('No image selected.');
+        print('ไม่พบรูปภาพที่ถูกเลือก');
       }
     });
   }
@@ -148,7 +187,7 @@ class _SignupScreenState extends State<SignupScreen> {
         _photo = File(pickedFile.path);
         uploadFile();
       } else {
-        print('No image selected.');
+        print('ไม่พบรูปภาพที่ถูกเลือก');
       }
     });
   }
@@ -165,7 +204,7 @@ class _SignupScreenState extends State<SignupScreen> {
       await ref.putFile(_photo!);
       imageurl = await ref.getDownloadURL();
     } catch (e) {
-      print('error occured');
+      print('มีข้อผิดพลาดบางอย่างเกิดขึ้น กรุราลองใหม่อีกครั้ง');
     }
   }
 
@@ -174,7 +213,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool shouldCheck = false;
   get alignment => null;
 
-  final List<String> genderItems = ['Male', 'Female', 'Other'];
+  final List<String> genderItems = ['ชาย', 'หญิง', 'อื่นๆ'];
   final List<String> regionItems = [
     'พุทธ',
     'อิสลาม',
@@ -182,10 +221,66 @@ class _SignupScreenState extends State<SignupScreen> {
     'ไม่มีศาสนา',
     'อื่นๆ'
   ];
-  String? selectedValue;
-  String? selectedRegion;
+  String selectedGender = "อื่นๆ";
+  String selectedRegion = "อื่นๆ";
   String? selectedDate;
   final _formKey = GlobalKey<FormState>();
+  double _strength = 0;
+  // 0: No password
+  // 1/4: Weak
+  // 2/4: Medium
+  // 3/4: Strong
+  // 1: Great
+
+  RegExp numReg = RegExp(r".*[0-9].*");
+  RegExp letterReg = RegExp(r".*[A-Za-z].*");
+
+  String _displayText = 'โปรดระบุรหัสผ่าน';
+
+  void _checkPassword(String value) {
+    _password = value.trim();
+
+    if (_password.isEmpty) {
+      setState(() {
+        _strength = 0;
+        _displayText = 'โปรดระบุรหัสผ่าน';
+      });
+    } else if (_password.length < 6) {
+      setState(() {
+        _strength = 1 / 4;
+        _displayText = 'รหัสผ่านสั้นเกินไป';
+      });
+    } else if (_password.length < 8) {
+      setState(() {
+        _strength = 2 / 4;
+        _displayText = 'รหัสผ่านอยู่ในเกณฑ์ไม่รัดกุม';
+      });
+    } else {
+      if (!letterReg.hasMatch(_password) || !numReg.hasMatch(_password)) {
+        setState(() {
+          // Password length >= 8
+          // But doesn't contain both letter and digit characters
+          _strength = 3 / 4;
+          _displayText = 'รหัสผ่านอยู่ในเกณฑ์แข็งแรง';
+        });
+      } else {
+        // Password length >= 8
+        // Password contains both letter and digit characters
+        setState(() {
+          _strength = 1;
+          _displayText = 'รหัสผ่านอยู่ในเกณฑ์ดี';
+        });
+      }
+    }
+  }
+
+  Future<bool> userExists(phonenumber) async {
+    return await FirebaseFirestore.instance
+        .collection('User')
+        .where('PhoneNumber', isEqualTo: phonenumber)
+        .get()
+        .then((value) => value.size > 0 ? true : false);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -193,8 +288,8 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 60),
             child: Column(children: [
-              HeaderAccount("Create your Account", 40, "#000000"),
-              /*GestureDetector(
+              HeaderAccount("สร้างบัญชีผู้ใช้", 40, "#000000"),
+              GestureDetector(
                 onTap: () {
                   _showPicker(context);
                 },
@@ -208,7 +303,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             _photo!,
                             width: 110,
                             height: 110,
-                            fit: BoxFit.fitHeight,
+                            fit: BoxFit.fill,
                           ),
                         )
                       : Container(
@@ -223,7 +318,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                         ),
                 ),
-              ),*/
+              ),
               Container(
                 child: Column(
                   children: [
@@ -249,15 +344,23 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ]),
                     ),*/
+
                     SizedboxHeaderForm("อีเมล : "),
                     TextFormField(
                       controller: _controllersEmail,
                       cursorColor: HexColor("#5D5FEF"),
                       textAlign: TextAlign.left,
                       keyboardType: TextInputType.emailAddress,
+                      validator: ((valueEmail) {
+                        if (valueEmail == null || valueEmail.isEmpty) {
+                          return 'โปรดระบุข้อมูล';
+                        }
+                        return valueEmail;
+                      }),
                       decoration: InputDecoration(
                           isDense: true, // Added this
                           contentPadding: EdgeInsets.all(14),
+
                           /*prefixIcon: Icon(
                             Icons.email,
                             color: Colors.black,
@@ -283,51 +386,77 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           )),
                     ),
-                    SizedboxHeaderForm("รหัสผ่าน : "),
-                    TextFormField(
-                      controller: _controllersPassword,
-                      cursorColor: HexColor("#5D5FEF"),
-                      textAlign: TextAlign.left,
-                      obscureText: _isObscure,
-                      keyboardType: TextInputType.visiblePassword,
-                      decoration: InputDecoration(
-                          isDense: true, // Added this
-                          contentPadding: EdgeInsets.all(14),
-                          /* prefixIcon: Icon(
+                    Column(
+                      children: [
+                        SizedboxHeaderForm("รหัสผ่าน : "),
+                        TextFormField(
+                          controller: _controllersPassword,
+                          cursorColor: HexColor("#5D5FEF"),
+                          textAlign: TextAlign.left,
+                          onChanged: (value) => _checkPassword(value),
+                          obscureText: _isObscure,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: InputDecoration(
+                              isDense: true, // Added this
+                              contentPadding: EdgeInsets.all(14),
+                              /* prefixIcon: Icon(
                             Icons.lock,
                             color: Colors.black,
                           ),*/
-                          hintText: 'Password',
-                          hintStyle: TextStyle(fontSize: 14),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(60.0),
-                            borderSide: BorderSide(
-                              width: 0,
-                              style: BorderStyle.none,
-                              //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: HexColor("DFDFFC"),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(60.0),
-                            borderSide: BorderSide(
-                              color: HexColor("#5D5FEF"),
+                              hintText: 'Password',
+                              hintStyle: TextStyle(fontSize: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(60.0),
+                                borderSide: BorderSide(
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                  //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: HexColor("DFDFFC"),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(60.0),
+                                borderSide: BorderSide(
+                                  color: HexColor("#5D5FEF"),
 
-                              //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
-                            ),
+                                  //fixedSize: MaterialStateProperty.all(const Size(350, 40)),
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(_isObscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
+                                color: Colors.black,
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                },
+                              )),
+                        ),
+                        Text(
+                          _displayText,
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.deepPurpleAccent,
                           ),
-                          suffixIcon: IconButton(
-                            icon: Icon(_isObscure
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                            color: HexColor("#5D5FEF"),
-                            onPressed: () {
-                              setState(() {
-                                _isObscure = !_isObscure;
-                              });
-                            },
-                          )),
+                        ),
+                        // The strength indicator bar
+                        LinearProgressIndicator(
+                          value: _strength,
+                          backgroundColor: Colors.grey[300],
+                          color: _strength <= 1 / 4
+                              ? Colors.red
+                              : _strength == 2 / 4
+                                  ? Colors.yellow
+                                  : _strength == 3 / 4
+                                      ? Colors.blue
+                                      : Colors.green,
+                          minHeight: 15,
+                        ),
+                      ],
                     ),
                     SizedboxHeaderForm("ชื่อจริง : "),
                     TextFormField(
@@ -476,10 +605,10 @@ class _SignupScreenState extends State<SignupScreen> {
                         color: HexColor("#DFDFFC"),
                       ),
                       items: regionItems
-                          .map((item) => DropdownMenuItem<String>(
-                                value: item,
+                          .map((itemRegion) => DropdownMenuItem<String>(
+                                value: itemRegion,
                                 child: Text(
-                                  item,
+                                  itemRegion,
                                   style: const TextStyle(
                                     fontSize: 14,
                                   ),
@@ -491,8 +620,9 @@ class _SignupScreenState extends State<SignupScreen> {
                           return 'Please select region.';
                         }
                       },
+                      value: selectedRegion,
                       onChanged: (value) {
-                        //Do something when changing the item if you want.
+                        selectedRegion = value as String;
                       },
                       onSaved: (value) {
                         selectedRegion = value.toString();
@@ -566,7 +696,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         borderRadius: BorderRadius.circular(15),
                         color: HexColor("#DFDFFC"),
                       ),
-                      items: genderItems
+                      items: <String>['ผู้ชาย', 'ผู้หญิง', 'อื่นๆ']
                           .map((item) => DropdownMenuItem<String>(
                                 value: item,
                                 child: Text(
@@ -582,11 +712,12 @@ class _SignupScreenState extends State<SignupScreen> {
                           return 'Please select gender.';
                         }
                       },
+                      value: selectedGender,
                       onChanged: (value) {
-                        //Do something when changing the item if you want.
+                        selectedGender = value as String;
                       },
                       onSaved: (value) {
-                        selectedValue = value.toString();
+                        selectedGender = value.toString();
                       },
                     ),
                     const SizedBox(height: 30),
@@ -595,7 +726,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               Container(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final email = _controllersEmail.text;
                     final password = _controllersPassword.text;
                     final firstname = _controllersFirstName.text;
@@ -605,24 +736,71 @@ class _SignupScreenState extends State<SignupScreen> {
                     final gender = _controllersGender.text;
                     final region = _controllersRegion.text;
                     //final filename = fileName.text;
-                    createUser(
-                        profileimage: imageurl,
-                        email: email,
-                        password: password,
-                        firstname: firstname,
-                        lastname: lastname,
-                        dob: dob,
-                        phonenumber: phonenumber,
-                        gender: gender,
-                        region: region);
-                    //createUserWithEmailAndPassword();
-                    /* signInWithEmailAndPassword();
+                    bool success = false;
+                    bool result = await userExists(phonenumber);
+                    if (result == false) {
+                      try {
+                        final userCredential =
+                            await _firebaseAuth.createUserWithEmailAndPassword(
+                                email: _controllersEmail.text.trim(),
+                                password: _controllersPassword.text.trim());
+                        User? user = userCredential.user;
+                        _uid = user!.uid;
+                        await userCredential.user
+                            ?.updateDisplayName(firstname + ' ' + lastname);
+                        await userCredential.user
+                            ?.updatePhotoURL(imageurl.toString());
+
+                        success = true;
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'weak-password') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackBarPasswordFail);
+                        } else if (e.code == 'email-already-in-use') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackInvalidEmailFail);
+                        } else if (e.code == 'invalid-email') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackInvalidEmailFail);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Failed with error code: ${e.code}'),
+                            backgroundColor: HexColor("#5D5FEF"),
+                          ));
+                        }
+                      }
+                      if (success == true) {
+                        createUser(
+                            useruid: _uid.toString(),
+                            profileimage: imageurl,
+                            email: email,
+                            password: password,
+                            firstname: firstname,
+                            lastname: lastname,
+                            dob: dob,
+                            phonenumber: phonenumber,
+                            gender: selectedGender.toString(),
+                            region: selectedRegion.toString());
+
+                        //}
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(snackInvalidPhoneNumberFail);
+                      }
+
+                      /* createUserWithEmailAndPassword();
+                     signInWithEmailAndPassword(); snackBarEmailFail
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => RegisterProfile()),
                   );*/
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(snackInvalidPhoneNumberFail);
+                    }
                   },
-                  child: const Text('Sign up', style: TextStyle(fontSize: 18)),
+                  child:
+                      const Text('ลงทะเบียน', style: TextStyle(fontSize: 18)),
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(HexColor("5D5FEF")),
@@ -636,41 +814,45 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               const SizedBox(height: 50),
-              DividerAccount("or continue with", 10),
+              DividerAccount("หรือดำเนินการต่อด้วย", 10),
               Container(
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.center,
-                  children: [
-                    OutlinedButton(
-                      // facebook button
-                      onPressed: () {
-                        AuthGoogle().signInWithGoogle();
-                      },
-                      child: FaIcon(FontAwesomeIcons.facebook),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: HexColor("#5D5FEF"),
-                        minimumSize: Size(50, 50),
+                child: Center(
+                  child: ButtonBar(
+                    alignment: MainAxisAlignment.center,
+                    buttonPadding:
+                        EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    children: [
+                      OutlinedButton(
+                        // facebook button
+                        onPressed: () {
+                          AuthGoogle().signInWithGoogle();
+                        },
+                        child: FaIcon(FontAwesomeIcons.facebook),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.white,
+                          onPrimary: HexColor("#5D5FEF"),
+                          minimumSize: Size(50, 50),
+                        ),
                       ),
-                    ),
-                    OutlinedButton(
-                      //google button
-                      onPressed: () {
-                        AuthGoogle().signInWithGoogle();
-                      },
-                      child: FaIcon(FontAwesomeIcons.google),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        onPrimary: HexColor("#5D5FEF"),
-                        minimumSize: Size(50, 50),
+                      OutlinedButton(
+                        //google button
+                        onPressed: () {
+                          AuthGoogle().signInWithGoogle();
+                        },
+                        child: FaIcon(FontAwesomeIcons.google),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.white,
+                          onPrimary: HexColor("#5D5FEF"),
+                          minimumSize: Size(50, 50),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
               BottomSignup(
-                  "Already have an account?  ", "#000000", "Sign in", "#5D5FEF")
+                  "มีบัญชีอยู่แล้ว?  ", "#000000", "เข้าสู่ระบบ", "#5D5FEF")
             ]),
           ),
         ),

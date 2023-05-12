@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/screen/BookingScreen/BookingScreen.dart';
 
 class DropdownTime extends StatefulWidget {
-  const DropdownTime({Key? key}) : super(key: key);
+  final ReservationData reservationData;
+
+  DropdownTime({
+    Key? key,
+    required this.reservationData,
+  }) : super(key: key);
 
   // FormBooking({List<String> items}) : this.items = items ?? [];
   // final List<String> items;
@@ -30,6 +39,10 @@ class _MyHomePageState extends State<DropdownTime> {
   ];
   @override
   Widget build(BuildContext context) {
+    dropdownvalue = widget.reservationData.TimeStartService == ""
+        ? '14:30'
+        : widget.reservationData.TimeStartService;
+
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text("Geeksforgeeks"),
@@ -75,6 +88,8 @@ class _MyHomePageState extends State<DropdownTime> {
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownvalue = newValue!;
+                      widget.reservationData.TimeStartService =
+                          dropdownvalue.toString();
                     });
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),

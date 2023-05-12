@@ -22,7 +22,7 @@ class NotificationScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-          height: 700,
+          height: 760,
           width: double.infinity,
           alignment: Alignment.center,
           child: Column(

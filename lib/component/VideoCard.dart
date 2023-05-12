@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,32 +15,34 @@ class VideoCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
+            textAlign: TextAlign.left,
             title,
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: HexColor('#5D5FEF')),
           ),
-          SizedBox(width: 20),
           Stack(
+            alignment: Alignment.topRight,
             children: <Widget>[
               Container(
+                transformAlignment: Alignment.bottomRight,
                 decoration: new BoxDecoration(color: Colors.white),
                 alignment: Alignment.center,
-                height: 150,
+                height: 50,
                 child: Image.asset("assets/images/sign.jpg",
                     // height: 200, width: 200,
                     fit: BoxFit.fill),
               ),
               Positioned(
-                right: 80,
-                bottom: 40,
+                right: 10,
+                bottom: 5,
                 child: Icon(
                   Icons.play_circle,
-                  size: 70,
+                  size: 40,
                   color: Colors.white,
                 ),
               )

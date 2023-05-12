@@ -11,7 +11,7 @@ import 'package:mutemaidservice/screen/UserScreen/Signup/SignupScreen.dart';
 class IndexScreen extends StatelessWidget {
   const IndexScreen({super.key});
 
-  static const String _title = 'MCS Service';
+  static const String _title = 'Starter | Mute Maid Service';
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class UserSystem extends StatelessWidget {
                   width: 400,
                 ),
               ),
-              HeaderAccount("Let's you in", 40, "#000000"),
+              HeaderAccount("ยินดีต้อนรับ", 26, "#000000"),
               Container(
                   //Sign In by Facebook
                   margin: EdgeInsets.symmetric(vertical: 6.0),
@@ -56,7 +56,7 @@ class UserSystem extends StatelessWidget {
                     ),
                     icon: FaIcon(FontAwesomeIcons.facebook), //color:
                     label: Text(
-                      'Continue with Facebook',
+                      'ดำเนินการต่อด้วย Facebook',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -80,7 +80,7 @@ class UserSystem extends StatelessWidget {
                   ),
                   icon: FaIcon(FontAwesomeIcons.google), //color:
                   label: Text(
-                    'Continue with Google',
+                    'ดำเนินการต่อด้วย Google',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
@@ -97,7 +97,7 @@ class UserSystem extends StatelessWidget {
                 //Sign In by gmail
               ),
               const SizedBox(height: 10),
-              DividerAccount("or", 10),
+              DividerAccount("หรือ", 10),
               const SizedBox(height: 10),
               Container(
                 //Sign In Default
@@ -108,8 +108,8 @@ class UserSystem extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => SigninScreen()),
                     );
                   },
-                  child: const Text('Sign in with password',
-                      style: TextStyle(fontSize: 18)),
+                  child:
+                      const Text('เข้าสู่ระบบ', style: TextStyle(fontSize: 18)),
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(HexColor("5D5FEF")),
@@ -125,8 +125,12 @@ class UserSystem extends StatelessWidget {
               const SizedBox(height: 30),
               Container(
                 alignment: FractionalOffset.bottomCenter,
-                child: BottomTitle("Don’t have an account?", "#000000",
-                    "  Sign up", "#5D5FEF"),
+                child: BottomTitle(
+                  "ยังไม่มีบัญชีผู้ใช้?",
+                  "#000000",
+                  "  ลงทะเบียนผู้ใช้",
+                  "#5D5FEF",
+                ),
               )
             ],
           )));
@@ -148,15 +152,18 @@ class BottomTitle extends StatelessWidget {
           TextSpan(
             text: FirstTitle,
             style: TextStyle(
-                color: HexColor(FistTitleColor),
-                fontSize: 16,
-                fontWeight: FontWeight.bold),
+              color: HexColor(FistTitleColor),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Kanit',
+            ),
           ),
           TextSpan(
               text: SecondTitle,
               style: TextStyle(
                   color: HexColor(SecondTitleColor),
                   fontSize: 16,
+                  fontFamily: 'Kanit',
                   fontWeight: FontWeight.bold),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {

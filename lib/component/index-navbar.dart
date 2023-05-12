@@ -9,7 +9,7 @@ void main() => runApp(const MyApp());
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  static const String _title = 'MCS Service';
+  static const String _title = 'MMS Service';
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +30,7 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
 
-  final screens = [
-    HomeScreen(),
-    MyBooking([3, 5]),
-    ChatScreen(),
-    HelpScreen()
-  ];
+  final screens = [HomeScreen(), MyBooking(), ChatScreen(), HelpScreen()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -47,7 +42,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MCS Service'),
+        title: const Text('MMS Service'),
       ),
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -59,15 +54,15 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article_outlined),
-            label: 'การจอง',
+            label: 'การจองของฉัน',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'แชท',
+            label: 'การสนทนา',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'ช่วยเหลือ',
+            label: 'ภาษามือ',
           ),
         ],
         currentIndex: _selectedIndex,

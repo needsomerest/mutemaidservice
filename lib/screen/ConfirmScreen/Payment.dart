@@ -1,12 +1,121 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/PaymentData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
 import 'package:mutemaidservice/screen/ConfirmScreen/ConfirmPayment.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import '../../component/Stepbar.dart';
 // import 'AddPlaceScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-class Payment extends StatelessWidget {
-  const Payment({super.key});
+class Payment extends StatefulWidget {
+  ReservationData reservationData;
+  Housekeeper housekeeper;
+
+  Payment({Key? key, required this.housekeeper, required this.reservationData})
+      : super(key: key);
+
+  @override
+  State<Payment> createState() => _PaymentState();
+}
+
+class _PaymentState extends State<Payment> {
+  String? errorMessages = '';
+  String imageurl = '';
+
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+
+  File? _photo;
+  final ImagePicker _picker = ImagePicker();
+
+  final snackBarUpPaymentFail = SnackBar(
+    content: const Text('เกิดข้อผิดพลาด กรุณาตรวจสอบไฟล์รูปภาพ'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+  final snackBarUpPaymentDone = SnackBar(
+    content: const Text('อัพโหลดหลักฐานการชำระเงินเสร็จสิ้น'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Gallery'),
+                      onTap: () {
+                        imgFromGallery();
+                        Navigator.of(context).pop();
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Camera'),
+                    onTap: () {
+                      imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Future imgFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _photo = File(pickedFile.path);
+        uploadFile();
+      } else {
+        print('ไม่พบรูปภาพที่ถูกเลือก');
+      }
+    });
+  }
+
+  Future imgFromCamera() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _photo = File(pickedFile.path);
+        uploadFile();
+      } else {
+        print('ไม่พบรูปภาพที่ถูกเลือก');
+      }
+    });
+  }
+
+  Future uploadFile() async {
+    if (_photo == null) return;
+    final fileName = basename(_photo!.path);
+    final destination = 'PaymentImage/$fileName';
+
+    try {
+      final ref = firebase_storage.FirebaseStorage.instance
+          .ref(destination)
+          .child('PaymentImage/');
+      await ref.putFile(_photo!);
+      imageurl = await ref.getDownloadURL();
+    } catch (e) {
+      print('มีข้อผิดพลาดบางอย่างเกิดขึ้น กรุราลองใหม่อีกครั้ง');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,41 +212,53 @@ class Payment extends StatelessWidget {
                     color: HexColor('#5D5FEF')),
               ),
               InkWell(
-                child: DottedBorder(
-                  color: HexColor('#5D5FEF'),
-                  borderType: BorderType.RRect,
-                  radius: Radius.circular(12),
-                  padding: EdgeInsets.all(20),
-                  borderPadding: EdgeInsets.all(30),
-                  strokeWidth: 2.5,
-                  dashPattern: [10, 10],
-                  child: Container(
-                    height: 150,
-                    width: 200,
-                    margin: EdgeInsets.only(
-                        top: 20, left: 20, right: 20, bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.cloud_upload,
-                          size: 120,
-                          color: HexColor('#5D5FEF'),
+                onTap: () {
+                  _showPicker(context);
+                },
+                child: _photo != null
+                    ? ClipRRect(
+                        child: Image.file(
+                          _photo!,
+                          fit: BoxFit.fill,
+                          height: 150,
+                          width: 200,
                         ),
-                        Text(
-                          'กดเพื่อเพิ่ม',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      )
+                    : DottedBorder(
+                        color: HexColor('#5D5FEF'),
+                        borderType: BorderType.RRect,
+                        radius: Radius.circular(12),
+                        padding: EdgeInsets.all(20),
+                        borderPadding: EdgeInsets.all(30),
+                        strokeWidth: 2.5,
+                        dashPattern: [10, 10],
+                        child: Container(
+                          height: 150,
+                          width: 200,
+                          margin: EdgeInsets.only(
+                              top: 20, left: 20, right: 20, bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.cloud_upload,
+                                size: 120,
+                                color: HexColor('#5D5FEF'),
+                              ),
+                              Text(
+                                'กดเพื่อเพิ่ม',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ),
               Container(
                 height: 50,
@@ -161,7 +282,12 @@ class Payment extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ConfirmPayment(true)));
+                            builder: (context) => ConfirmPayment(
+                                  paid: true,
+                                  PaymentImage: imageurl.toString(),
+                                  housekeeper: widget.housekeeper,
+                                  reservationData: widget.reservationData,
+                                )));
                   },
                 ),
               )

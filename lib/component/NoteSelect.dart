@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/screen/BookingScreen/BookingScreen.dart';
 
 class NoteSelect extends StatefulWidget {
-  const NoteSelect({Key? key}) : super(key: key);
+  final ReservationData reservationData;
+  NoteSelect({
+    Key? key,
+    required this.reservationData,
+  }) : super(key: key);
 
   // FormBooking({List<String> items}) : this.items = items ?? [];
   // final List<String> items;
@@ -24,6 +32,9 @@ class _MyHomePageState extends State<NoteSelect> {
   ];
   @override
   Widget build(BuildContext context) {
+    dropdownvalue = widget.reservationData.Note == ""
+        ? 'เปลี่ยนผ้าคลุมเตียงและปลอกหมอน'
+        : widget.reservationData.Note;
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text("Geeksforgeeks"),
@@ -63,6 +74,7 @@ class _MyHomePageState extends State<NoteSelect> {
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownvalue = newValue!;
+                      widget.reservationData.Note = dropdownvalue.toString();
                     });
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),

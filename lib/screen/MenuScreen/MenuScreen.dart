@@ -1,18 +1,78 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
+import 'package:mutemaidservice/component/FavMaidlist.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/auth.dart';
 import 'package:mutemaidservice/screen/MenuScreen/DeleteAccountSuccess.dart';
+import 'package:mutemaidservice/screen/UserScreen/EditProfileScreen.dart';
+import 'package:mutemaidservice/screen/UserScreen/IndexScreen.dart';
 import '../../component/DropdownArea.dart';
+import '../../model/Data/ReservationData.dart';
 import 'ContactScreen.dart';
 import '../../component/SettingName.dart';
 import '../PlaceScreen/MyplaceScreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'FavoriteScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  User? get currentUser => _firebaseAuth.currentUser;
+  Stream<User?> get authStateChange => _firebaseAuth.authStateChanges();
+  final User? user = Auth().currentUser;
+  final String uid = FirebaseAuth.instance.currentUser!.uid.toString();
 
   @override
   Widget build(BuildContext context) {
+    final newReservationData = new ReservationData(
+        "",
+        "",
+        DateFormat('yyyy-MM-dd').format(DateTime.now()).toString(),
+        "14:30",
+        "",
+        "2 ชม. แนะนำ",
+        Duration(
+          hours: 0,
+        ),
+        "ครั้งเดียว",
+        "เปลี่ยนผ้าคลุมเตียงและปลอกหมอน",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "ไม่มี",
+        "",
+        GeoPoint(0.0, 0.0),
+        "",
+        "",
+        "",
+        "กำลังตรวจสอบ");
+
+    final newHousekeeper = Housekeeper("HousekeeperID", "FirstName", "LastName",
+        "ProfileImage", 0, 0, 0, "CommunicationSkill", "PhoneNumber");
+
+    final newAddress = AddressData(
+        "AddressID",
+        "Addressimage",
+        "Type",
+        "SizeRoom",
+        "Address",
+        "AddressDetail",
+        "Province",
+        "District",
+        "Phonenumber",
+        "Note",
+        "User",
+        GeoPoint(0, 0));
+
     return Scaffold(
       backgroundColor: HexColor('#5D5FEF'),
       appBar: AppBar(
@@ -42,27 +102,41 @@ class ProfileScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'พิชญาภรณ์ หัสเมตโต',
+                        user?.displayName ?? 'User',
                         style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,
                             fontWeight: FontWeight.w500),
                       ),
-                      Text(
-                        'แก้ไขโปรไฟล์',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EditProfileScreen()));
+                        },
+                        child: Text(
+                          'แก้ไขโปรไฟล์',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ],
                   ),
                   Container(
+                    // alignment: Alignment.topCenter,
+                    // margin: EdgeInsets.only(botto),
                     margin: EdgeInsets.only(bottom: 20),
-                    child: Image.asset(
-                      "assets/images/profile.png",
-                      width: 70,
-                      height: 70,
+                    height: 70,
+                    width: 70,
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        user?.photoURL ??
+                            "https://firebasestorage.googleapis.com/v0/b/mutemaidservice-5c04b.appspot.com/o/download%20(4).jpg?alt=media&token=312d915c-b0ac-4b11-880a-67610ffd06ce",
+                      ),
+                      radius: 220,
                     ),
                   ),
                 ],
@@ -103,8 +177,12 @@ class ProfileScreen extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        Myplace([1, 3], false)));
+                                    builder: (context) => Myplace(
+                                          book: false,
+                                          reservationData: newReservationData,
+                                          housekeeper: newHousekeeper,
+                                          addressData: newAddress,
+                                        )));
                           },
                         ),
 
@@ -125,7 +203,8 @@ class ProfileScreen extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => FavoriteScreen()));
+                                    builder: (context) =>
+                                        MyfavoriteScreen(userID: uid)));
                           },
                         ),
 
@@ -182,13 +261,22 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           onTap: () => _onAlertButtonPressed(context),
                         ),
+                        InkWell(
+                            child: Container(
+                              margin: EdgeInsets.all(10),
+                              height: 50,
+                              child: SettingName(
+                                  Icons.logout, "ออกจากระบบ", Colors.white),
+                              //onPressed: SignOut,
+                            ),
+                            onTap: () async {
+                              await FirebaseAuth.instance.signOut();
 
-                        Container(
-                          margin: EdgeInsets.all(10),
-                          height: 50,
-                          child: SettingName(
-                              Icons.logout, "ออกจากระบบ", Colors.white),
-                        ),
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => IndexScreen()));
+                            }),
                       ],
                     ),
                   )),
@@ -206,6 +294,7 @@ class ProfileScreen extends StatelessWidget {
 }
 
 _onAlertButtonPressed(BuildContext context) {
+  final User? user = Auth().currentUser;
   Alert(
     context: context,
     type: AlertType.warning,
@@ -230,6 +319,7 @@ _onAlertButtonPressed(BuildContext context) {
               color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
+          deleteData();
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => DeleteAccountSuccess()));
         },
@@ -247,32 +337,48 @@ _onAlertButtonPressed(BuildContext context) {
     ],
   ).show();
 }
-  // _onAlertButtonsPressed(context) {
-  //   Alert(
-  //     context: context,
-  //     type: AlertType.warning,
-  //     title: "RFLUTTER ALERT",
-  //     desc: "Flutter is more awesome with RFlutter Alert.",
-  //     buttons: [
-  //       DialogButton(
-  //         child: Text(
-  //           "FLAT",
-  //           style: TextStyle(color: Colors.white, fontSize: 18),
-  //         ),
-  //         onPressed: () => Navigator.pop(context),
-  //         color: Color.fromRGBO(0, 179, 134, 1.0),
-  //       ),
-  //       DialogButton(
-  //         child: Text(
-  //           "GRADIENT",
-  //           style: TextStyle(color: Colors.white, fontSize: 18),
-  //         ),
-  //         onPressed: () => Navigator.pop(context),
-  //         gradient: LinearGradient(colors: [
-  //           Color.fromRGBO(116, 116, 191, 1.0),
-  //           Color.fromRGBO(52, 138, 199, 1.0),
-  //         ]),
-  //       )
-  //     ],
-  //   ).show();
-  // }
+// _onAlertButtonsPressed(context) {
+//   Alert(
+//     context: context,
+//     type: AlertType.warning,
+//     title: "RFLUTTER ALERT",
+//     desc: "Flutter is more awesome with RFlutter Alert.",
+//     buttons: [
+//       DialogButton(
+//         child: Text(
+//           "FLAT",
+//           style: TextStyle(color: Colors.white, fontSize: 18),
+//         ),
+//         onPressed: () => Navigator.pop(context),
+//         color: Color.fromRGBO(0, 179, 134, 1.0),
+//       ),
+//       DialogButton(
+//         child: Text(
+//           "GRADIENT",
+//           style: TextStyle(color: Colors.white, fontSize: 18),
+//         ),
+//         onPressed: () => Navigator.pop(context),
+//         gradient: LinearGradient(colors: [
+//           Color.fromRGBO(116, 116, 191, 1.0),
+//           Color.fromRGBO(52, 138, 199, 1.0),
+//         ]),
+//       )
+//     ],
+//   ).show();
+// }
+
+Future deleteData() async {
+  final User? user = Auth().currentUser;
+
+  try {
+    user?.delete();
+    await FirebaseFirestore.instance
+        .collection("User")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .delete();
+
+    print("sucess");
+  } catch (e) {
+    return print(e);
+  }
+}

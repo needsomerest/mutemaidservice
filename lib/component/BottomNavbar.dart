@@ -45,12 +45,7 @@ class BottomNavbar extends StatefulWidget {
 class _MyStatefulWidgetState extends State<BottomNavbar> {
   int _selectedIndex = 0;
 
-  final screens = [
-    HomeScreen(),
-    MyBooking([1, 5]),
-    ChatScreen(),
-    HelpScreen()
-  ];
+  final screens = [HomeScreen(), MyBooking(), ChatScreen(), HelpScreen()];
   // final screens = [HomeScreen(), booking(false), ChatScreen(), HelpScreen()];
   void _onItemTapped(int index) {
     setState(() {
@@ -71,15 +66,15 @@ class _MyStatefulWidgetState extends State<BottomNavbar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article_outlined),
-            label: 'การจอง',
+            label: 'การจองของฉัน',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'แชท',
+            label: 'การสนทนา',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.video_camera_front),
-            label: 'ล่าม',
+            label: 'ภาษามือ',
           ),
         ],
         currentIndex: _selectedIndex,

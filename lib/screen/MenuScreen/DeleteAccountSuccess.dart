@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:mutemaidservice/screen/HomeScreen.dart';
+import 'package:mutemaidservice/screen/UserScreen/IndexScreen.dart';
 import '../../component/Stepbar.dart';
 // import 'AddPlaceScreen.dart';
 
@@ -68,7 +69,7 @@ class DeleteAccountSuccess extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                                builder: (context) => IndexScreen()));
                       },
                     ),
                   )

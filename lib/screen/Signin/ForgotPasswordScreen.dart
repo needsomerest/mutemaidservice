@@ -24,40 +24,48 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     emailController.dispose();
   }
 
-  final snackBarSucess =
-      SnackBar(content: const Text('Success. Password Reset Email sent'));
-
-  final snackBarFail = SnackBar(
-    content: const Text('Faild. Something is wrong'),
-    action: SnackBarAction(
-      label: 'Undo',
-      onPressed: () {
-        // Some code to undo the change.
-      },
-    ),
+  final snackBarSucess = SnackBar(
+    content: const Text('สำเร็จ กรุณาตรวจสอบอีเมลเพื่อสร้างรหัสผ่านใหม่'),
+    backgroundColor: HexColor("#489934"),
   );
+
+  final snackLoginEmailFail = SnackBar(
+    content: const Text('ไม่พบอีเมลดังกล่าวในระบบ'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
+  final snackLoginUnknowFail = SnackBar(
+    content: const Text('กรุณาใส่อีเมลเพื่อทำการกู้รหัสผ่าน'),
+    backgroundColor: HexColor("#5D5FEF"),
+  );
+
   Future resetPassword() async {
     try {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());
       //Utils.showSnackBar('Password Reset Email sent');
       ScaffoldMessenger.of(context).showSnackBar(snackBarSucess);
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      //Navigator.of(context).popUntil((route) => route.isFirst);
     } on FirebaseAuthException catch (e) {
-      print(e);
-      Navigator.of(context).pop();
-      //Utils.showSnackBar(e.message);
-      ScaffoldMessenger.of(context).showSnackBar(snackBarFail);
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(snackLoginEmailFail);
+      } else if (e.code == 'unknown') {
+        ScaffoldMessenger.of(context).showSnackBar(snackLoginUnknowFail);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed with error code: ${e.code}'),
+        backgroundColor: HexColor("#5D5FEF"),
+      ));
     }
   }
 
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(
-            "Forgot password",
+            "ลืมรหัสผ่าน",
             style: TextStyle(
-                color: HexColor("#5D5FEF"),
-                fontSize: 30,
+                color: HexColor("#000000"),
+                fontSize: 20,
                 fontFamily: 'Kanit',
                 fontWeight: FontWeight.bold),
           ),
@@ -71,10 +79,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             //padding: const EdgeInsets.all(22.0),
             child: Column(children: [
               const SizedBox(height: 30),
-              HeaderAccount("Forget Password", 40, "#000000"),
+              HeaderAccount("ค้นหาบัญชีของคุณ", 30, "#5D5FEF"),
               const SizedBox(height: 50),
               Text(
-                "Enter Email Address",
+                "โปรดป้อนอีเมลเพื่อค้นหาบัญชีของคุณ",
                 style: TextStyle(color: HexColor("BDBDBD")),
               ),
               const SizedBox(height: 10),
@@ -109,22 +117,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     )),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (email) =>
-                    email != null && !EmailValidator.validate(email)
-                        ? 'Email a valid email'
-                        : null,
               ),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   resetPassword();
-                  // signInWithEmailAndPassword();
-                  /*Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );*/
                 },
-                child: const Text('Sign in', style: TextStyle(fontSize: 18)),
+                child: const Text('ส่ง', style: TextStyle(fontSize: 18)),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all(HexColor("5D5FEF")),

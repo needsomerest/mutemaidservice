@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:mutemaidservice/model/Data/AddressData.dart';
+import 'package:mutemaidservice/model/Data/HousekeeperData.dart';
+import 'package:mutemaidservice/model/Data/ReservationData.dart';
+import 'package:mutemaidservice/screen/BookingScreen/BookingScreen.dart';
 
 class DropdownPeriod extends StatefulWidget {
-  const DropdownPeriod({Key? key}) : super(key: key);
+  final ReservationData reservationData;
+  DropdownPeriod({
+    Key? key,
+    required this.reservationData,
+  }) : super(key: key);
 
   // FormBooking({List<String> items}) : this.items = items ?? [];
   // final List<String> items;
@@ -22,10 +30,14 @@ class _MyHomePageState extends State<DropdownPeriod> {
     '4 ชม.',
     '5 ชม.',
     '6 ชม.',
+    '7 ชม.',
     '8 ชม.',
   ];
   @override
   Widget build(BuildContext context) {
+    dropdownvalue = widget.reservationData.Timeservice == ""
+        ? "2 ชม. แนะนำ"
+        : widget.reservationData.Timeservice;
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text("Geeksforgeeks"),
@@ -71,6 +83,8 @@ class _MyHomePageState extends State<DropdownPeriod> {
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownvalue = newValue!;
+                      widget.reservationData.Timeservice =
+                          dropdownvalue.toString();
                     });
                   },
                   style: TextStyle(fontSize: 14, color: Colors.black),
